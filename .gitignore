@@ -1,0 +1,12 @@
+CMakeCache*
+.gdb_history
+CMakeFiles
+Makefile
+*.swp
+mc
+*.dSYM
+*.dylib
+*.so
+*.a
+*.la
+*.cmake
