@@ -216,6 +216,8 @@ PromCompileGreyboxModel(model_t model, const char *filename)
     if ((ret = stat (bin_fname, &st)) != 0)
         Assert(ret >= 0, "File not found: %s", bin_fname);
 
+    PromLoadDynamicLib (model, bin_fname);
+
     RTfree (bin_fname);
 }
 
