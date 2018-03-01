@@ -31,6 +31,7 @@ add_subdirectory(dm)
 add_subdirectory(util-mc)
 add_subdirectory(pins)
 add_subdirectory(peterson)
+add_subdirectory(ltl2ba)
 
 
 add_executable(mc
