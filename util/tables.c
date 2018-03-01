@@ -1,12 +1,12 @@
 
-#include "../../pins/util/tables.h"
+#include "util/tables.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-#include "../../pins/util/dynamic-array.h"
-#include "../../pins/util/runtime.h"
-#include "../../pins/util/util.h"
+#include "util/dynamic-array.h"
+#include "util/runtime.h"
+#include "util/util.h"
 
 
 struct value_table_s {

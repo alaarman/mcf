@@ -5,22 +5,20 @@
 #include <sys/types.h>
 #endif
 
+#ifdef __linux__
+    #define _GNU_SOURCE 1
+    #include <sched.h> // for sched_getaffinity
+#endif
 #include <dlfcn.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
-#ifdef __linux__
-#   include <sched.h> // for sched_getaffinity
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/times.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#ifdef __APPLE__
-#include <sys/sysctl.h>
-#endif
 
 #include "util/runtime.h"
 #include "util/util.h"
@@ -118,18 +116,17 @@ size_t RTmemSize(){
                 if (cgroup_limit < limit) {
                     limit = cgroup_limit;
                     if (!mem_size_warned) {
-                        Warning(infoLong,
-                                "Using cgroup limit of %zu bytes", limit);
+                        Print("Using cgroup limit of %zu bytes", limit);
                     }
                 }
             } else if (!mem_size_warned) {
-                Warning(error, "Unable to get cgroup memory limit "
+                Error("Unable to get cgroup memory limit "
                         "in file %s: %s",
                         file, errno != 0 ? strerror(errno) : "unknown error");
             }
             fclose(fp);
         } else if (!mem_size_warned) {
-            Warning(error, "Unable to open cgroup memory limit file %s: %s",
+            Error("Unable to open cgroup memory limit file %s: %s",
                     file, strerror(errno));
         }
 
@@ -173,7 +170,7 @@ int RTnumCPUs(){
                 cpus_size = CPU_ALLOC_SIZE(configured_cpus);
                 CPU_ZERO_S(cpus_size, cpus_p);
             } else {
-                Warning(error, "CPU_ALLOC failed: %s",
+                Error("CPU_ALLOC failed: %s",
                         errno != 0 ? strerror(errno) : "unknown error");
                 return cpu_count;
             }
@@ -182,7 +179,7 @@ int RTnumCPUs(){
             if (cpus_p != &cpus) cpu_count = CPU_COUNT_S(cpus_size, cpus_p);
             else cpu_count = CPU_COUNT(cpus_p);
         } else {
-            Warning(error, "Unable to get CPU set affinity: %s",
+            Error("Unable to get CPU set affinity: %s",
                     errno != 0 ? strerror(errno) : "unknown error");
         }
         if (cpus_p != &cpus) CPU_FREE(cpus_p);

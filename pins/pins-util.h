@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "../../pins/pins/pins.h"
+#include "pins/pins.h"
 
 extern int          pins_allow_undefined_edges;
 extern int          pins_allow_undefined_values;

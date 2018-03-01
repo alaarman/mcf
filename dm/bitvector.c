@@ -1,9 +1,9 @@
-#include "../../pins/dm/bitvector.h"
+#include "dm/bitvector.h"
 
 #include <limits.h>
 
-#include "../../pins/util/runtime.h"
-#include "../../pins/util/util.h"
+#include "util/runtime.h"
+#include "util/util.h"
 
 static inline       size_t
 utrunc (size_t x, size_t m)

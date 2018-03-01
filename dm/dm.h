@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../../pins/dm/bitvector.h"
+#include "dm/bitvector.h"
 
 #ifdef __cplusplus
 extern "C" {

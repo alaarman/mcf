@@ -1,6 +1,3 @@
-
-#include "../../pins/dm/dm.h"
-
 #include <assert.h>
 #include <float.h>
 #include <limits.h>
@@ -9,10 +6,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../../pins/dm/bitvector.h"
-#include "../../pins/pins/ltsmin-standard.h"
-#include "../../pins/util/runtime.h"
-#include "../../pins/util/util.h"
+#include "dm/bitvector.h"
+#include "dm/dm.h"
+#include "pins/ltsmin-standard.h"
+#include "util/runtime.h"
+#include "util/util.h"
 
 void
 dm_clear_header(matrix_header_t* p)

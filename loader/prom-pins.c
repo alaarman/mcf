@@ -1,7 +1,6 @@
-#include "../loader/prom-pins.h"
-
 #include <dlfcn.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>

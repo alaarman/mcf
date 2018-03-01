@@ -8,7 +8,7 @@
 #ifndef STRING_INDEX_H
 #define STRING_INDEX_H
 
-#include "../../pins/util/dynamic-array.h"
+#include "util/dynamic-array.h"
 
 /// String index handle.
 typedef struct stringindex *string_index_t;
