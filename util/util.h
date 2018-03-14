@@ -46,6 +46,7 @@ extern "C" {
 #define DEBUG 1
 #endif
 
+#define Print0(...)  do { printf(__VA_ARGS__); } while (0)
 #define Print(...)  do { printf(__VA_ARGS__); printf("\n"); } while (0)
 #define Error(...)  do { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); } while (0)
 #define Exit(e,...) do { Error(__VA_ARGS__); exit(e); } while (0)
