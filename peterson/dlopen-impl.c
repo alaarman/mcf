@@ -2,7 +2,7 @@
 #include <pins/lts-type.h>
 #include <pins/ltsmin-standard.h>
 #include <pins/pins.h>
-#include <pins/pins-util.h>
+//#include <pins/pins-util.h>
 
 #include <peterson/peterson.h>
 
@@ -29,7 +29,7 @@ static void long_cb (void *context, transition_info_t *ti, int *dst, int *cpy) {
     }
 }
 
-int next_states_long (void *model, int *src, int group,
+int next_states_long (void *model, int group, int *src,
                       TransitionCB callback, void *arg)
 {
     context_t c;
@@ -37,8 +37,6 @@ int next_states_long (void *model, int *src, int group,
     c.group = group;
     c.arg = arg;
     c.count = 0;
-    printf ("2");
-    //GBgetTransitionsAll (model, src, long_cb, (void *) &c);
     next_states (model, src, long_cb, (void *) &c);
     return c.count;
 }
@@ -61,7 +59,7 @@ void pins_model_init(model_t m) {
 
     // add a "bool" type for state labels
     int bool_type = lts_type_add_type (ltstype, "bool", NULL);
-    lts_type_set_format (ltstype, bool_type, LTStypeBool);
+    lts_type_set_format (ltstype, bool_type, LTStypeEnum);//LTStypeBool);
 
     // set state name & type
     for (int i = 0; i < state_int_length(); ++i) {

@@ -3,10 +3,6 @@
 
 #include <pins/pins.h>
 
-
-int next_states_long (void *model, int *src, int group,
-                      TransitionCB callback, void *arg);
-
 /**
  * @brief calls callback for every successor state of src
  */
