@@ -43,7 +43,7 @@ typedef struct stats_s {
 /**
 \typedef Lockless hastable database.
 */
-typedef struct dbs_ll_s *dbs_ll_t;
+typedef struct table_ll_s table_ll_t;
 
 typedef uint16_t mem_hash_t;
 typedef size_t dbs_ref_t;
@@ -70,8 +70,8 @@ typedef uint32_t   (*dbs_get_sat_bits_f) (const void *dbs, const dbs_ref_t ref);
 \param len The length of the vectors to be stored here
 \return the hashtable
 */
-extern dbs_ll_t     DBSLLcreate (int len);
-extern dbs_ll_t     DBSLLcreate_sized (int len, int size, hash64_f hash64, int bits);
+extern table_ll_t *    table_create (int len);
+extern table_ll_t *    table_create_sized (int len, int size, hash64_f hash64, int bits);
 
 /**
 \brief Find a vector with respect to a database and insert it if it cannot be fo
@@ -80,31 +80,31 @@ und.
 \param vector The int vector
 \return the index of the vector in  one of the segments of the db
 */
-extern int          DBSLLtry_set_sat_bits (const dbs_ll_t dbs, const ref_t ref,
+extern int          table_try_set_sat_bits (table_ll_t *dbs, const ref_t ref,
                                            size_t bits, size_t offs,
                                            uint64_t exp, uint64_t new_val);
 
-extern mem_hash_t   DBSLLget_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref);
+extern mem_hash_t   table_get_sat_bits (table_ll_t *dbs, const dbs_ref_t ref);
 
-extern void         DBSLLset_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref,
+extern void         table_set_sat_bits (table_ll_t *dbs, const dbs_ref_t ref,
                                        mem_hash_t value);
 
-extern int          DBSLLtry_set_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref,
+extern int          table_try_set_sat_bit (table_ll_t *dbs, const dbs_ref_t ref,
                                           int index);
 
-extern int          DBSLLtry_unset_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref,
+extern int          table_try_unset_sat_bit (table_ll_t *dbs, const dbs_ref_t ref,
                                           int index);
    
-extern int          DBSLLget_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref,
+extern int          table_get_sat_bit (table_ll_t *dbs, const dbs_ref_t ref,
                                       int index);
 
-extern void         DBSLLunset_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref,
+extern void         table_unset_sat_bit (table_ll_t *dbs, const dbs_ref_t ref,
                                         int index);
 
 
-extern mem_hash_t   DBSLLinc_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref);
+extern mem_hash_t   table_inc_sat_bits (table_ll_t *dbs, const dbs_ref_t ref);
 
-extern mem_hash_t   DBSLLdec_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref);
+extern mem_hash_t   table_dec_sat_bits (table_ll_t *dbs, const dbs_ref_t ref);
 
 /**
 \brief Find a vector with respect to a database and insert it if it cannot be fo
@@ -114,35 +114,35 @@ und.
 \retval idx The index that the vector was found or inserted at
 \return 1 if the vector was present, 0 if it was added
 */
-extern int          DBSLLfop_hash (const dbs_ll_t dbs, const int *v,
+extern int          table_fop_hash (table_ll_t *dbs, const int *v,
                                    dbs_ref_t *ret, hash64_t *hash, bool insert);
 
-extern int         *DBSLLget (const dbs_ll_t dbs, const dbs_ref_t ref, int *dst);
+extern int         *table_get (table_ll_t *dbs, const dbs_ref_t ref, int *dst);
 
-extern mem_hash_t   DBSLLmemoized_hash (const dbs_ll_t dbs, const dbs_ref_t ref);
+extern mem_hash_t   table_memoized_hash (table_ll_t *dbs, const dbs_ref_t ref);
 
 static inline int
-DBSLLlookup_hash (const dbs_ll_t dbs, const int *v, dbs_ref_t *ret, hash64_t *hash)
+table_lookup_hash (table_ll_t *dbs, const int *v, dbs_ref_t *ret, hash64_t *hash)
 {
-    return DBSLLfop_hash (dbs, v, ret, hash, true);
+    return table_fop_hash (dbs, v, ret, hash, true);
 }
 
 static inline int
-DBSLLlookup_ret (const dbs_ll_t dbs, const int *v, dbs_ref_t *ret)
+table_lookup_ret (table_ll_t *dbs, const int *v, dbs_ref_t *ret)
 {
-    return DBSLLfop_hash (dbs, v, ret, NULL, true);
+    return table_fop_hash (dbs, v, ret, NULL, true);
 }
 
 static inline int
-DBSLLfind_hash (const dbs_ll_t dbs, const int *v, dbs_ref_t *ret, hash64_t *hash)
+table_find_hash (table_ll_t *dbs, const int *v, dbs_ref_t *ret, hash64_t *hash)
 {
-    return DBSLLfop_hash (dbs, v, ret, hash, false);
+    return table_fop_hash (dbs, v, ret, hash, false);
 }
 
 /**
 \brief Free the memory used by a dbs.
 */
-extern void         DBSLLfree (dbs_ll_t dbs);
+extern void         table_free (table_ll_t *dbs);
 
 /**
 \brief return a copy of internal statistics
@@ -150,6 +150,6 @@ extern void         DBSLLfree (dbs_ll_t dbs);
 \param dbs The dbs
 \returns a copy of the statistics, to be freed with free
 */
-extern stats_t     *DBSLLstats (dbs_ll_t dbs);
+extern stats_t     *table_stats (table_ll_t *dbs);
 
 #endif

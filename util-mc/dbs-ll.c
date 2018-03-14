@@ -16,7 +16,7 @@ static mem_hash_t       WRITE_BIT = 1;
 static mem_hash_t       WRITE_BIT_R = ~((mem_hash_t)1);
 static const uint64_t   CL_MASK = -(1UL << CACHE_LINE);
 
-struct dbs_ll_s {
+struct table_ll_s {
     size_t              length;
     size_t              sat_bits;
     size_t              bytes;
@@ -36,7 +36,7 @@ typedef struct local_s {
 } local_t;
 
 local_t *
-get_local (dbs_ll_t dbs)
+get_local (table_ll_t *dbs)
 {
     local_t            *loc = pthread_getspecific(dbs->local_key);
     if (loc == NULL) {
@@ -48,13 +48,13 @@ get_local (dbs_ll_t dbs)
 }
 
 mem_hash_t
-DBSLLget_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref)
+table_get_sat_bits (table_ll_t *dbs, const dbs_ref_t ref)
 {
     return atomic_read (dbs->table+ref) & dbs->sat_mask;
 }
 
 int
-DBSLLtry_set_sat_bits (const dbs_ll_t dbs, const ref_t ref,
+table_try_set_sat_bits (table_ll_t *dbs, const ref_t ref,
                        size_t bits, size_t offs,
                        uint64_t exp, uint64_t new_val)
 {
@@ -75,7 +75,7 @@ DBSLLtry_set_sat_bits (const dbs_ll_t dbs, const ref_t ref,
 }
 
 int
-DBSLLget_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref, int index)
+table_get_sat_bit (table_ll_t *dbs, const dbs_ref_t ref, int index)
 {
     mem_hash_t      bit = 1U << index;
     mem_hash_t      hash_and_sat = atomic_read (dbs->table+ref);
@@ -84,7 +84,7 @@ DBSLLget_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref, int index)
 }
 
 void
-DBSLLunset_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref, int index)
+table_unset_sat_bit (table_ll_t *dbs, const dbs_ref_t ref, int index)
 {
     mem_hash_t      bit = 1U << index;
     mem_hash_t      hash_and_sat = atomic_read (dbs->table+ref);
@@ -93,7 +93,7 @@ DBSLLunset_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref, int index)
 }
 
 int
-DBSLLtry_set_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref, int index)
+table_try_set_sat_bit (table_ll_t *dbs, const dbs_ref_t ref, int index)
 {
     mem_hash_t      bit = 1U << index;
     do {
@@ -107,7 +107,7 @@ DBSLLtry_set_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref, int index)
 }
 
 int
-DBSLLtry_unset_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref, int index)
+table_try_unset_sat_bit (table_ll_t *dbs, const dbs_ref_t ref, int index)
 {
     mem_hash_t      bit = (1U << index);
     do {
@@ -121,7 +121,7 @@ DBSLLtry_unset_sat_bit (const dbs_ll_t dbs, const dbs_ref_t ref, int index)
 }
 
 mem_hash_t
-DBSLLinc_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref)
+table_inc_sat_bits (table_ll_t *dbs, const dbs_ref_t ref)
 {
     mem_hash_t      val, newval;
     do {
@@ -133,7 +133,7 @@ DBSLLinc_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref)
 }
 
 mem_hash_t
-DBSLLdec_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref)
+table_dec_sat_bits (table_ll_t *dbs, const dbs_ref_t ref)
 {
     mem_hash_t      val, newval;
     do {
@@ -145,20 +145,20 @@ DBSLLdec_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref)
 }
 
 void
-DBSLLset_sat_bits (const dbs_ll_t dbs, const dbs_ref_t ref, mem_hash_t value)
+table_set_sat_bits (table_ll_t *dbs, const dbs_ref_t ref, mem_hash_t value)
 {
     mem_hash_t      hash = dbs->table[ref] & ~dbs->sat_mask;
     atomic_write (dbs->table+ref, hash | (value & dbs->sat_mask));
 }
 
 mem_hash_t
-DBSLLmemoized_hash (const dbs_ll_t dbs, const dbs_ref_t ref)
+table_memoized_hash (table_ll_t *dbs, const dbs_ref_t ref)
 {
     return dbs->table[ref] & ~dbs->sat_mask;
 }
 
 int
-DBSLLfop_hash (const dbs_ll_t dbs, const int *v, dbs_ref_t *ret, hash64_t *hash, bool insert)
+table_fop_hash (table_ll_t *dbs, const int *v, dbs_ref_t *ret, hash64_t *hash, bool insert)
 {
     local_t            *loc = get_local (dbs);
     stats_t            *stat = &loc->stat;
@@ -212,22 +212,22 @@ DBSLLfop_hash (const dbs_ll_t dbs, const int *v, dbs_ref_t *ret, hash64_t *hash,
 }
 
 int *
-DBSLLget (const dbs_ll_t dbs, const dbs_ref_t ref, int *dst)
+table_get (table_ll_t *dbs, const dbs_ref_t ref, int *dst)
 {
     return &dbs->data[ref * dbs->length];
     (void) dst;
 }
 
-dbs_ll_t
-DBSLLcreate (int length)
+table_ll_t *
+table_create (int length)
 {
-    return DBSLLcreate_sized (length, TABLE_SIZE, (hash64_f)MurmurHash64, 0);
+    return table_create_sized (length, TABLE_SIZE, (hash64_f)MurmurHash64, 0);
 }
 
-dbs_ll_t
-DBSLLcreate_sized (int length, int size, hash64_f hash64, int satellite_bits)
+table_ll_t *
+table_create_sized (int length, int size, hash64_f hash64, int satellite_bits)
 {
-    dbs_ll_t            dbs = RTalign (CACHE_LINE_SIZE, sizeof (struct dbs_ll_s));
+    table_ll_t *           dbs = RTalign (CACHE_LINE_SIZE, sizeof (table_ll_t));
     dbs->length = length;
     dbs->hash64 = hash64;
     dbs->full = 0;
@@ -248,7 +248,7 @@ DBSLLcreate_sized (int length, int size, hash64_f hash64, int satellite_bits)
 }
 
 void
-DBSLLfree (dbs_ll_t dbs)
+table_free (table_ll_t *dbs)
 {
     RTfree (dbs->data);
     RTfree (dbs->table);
@@ -256,7 +256,7 @@ DBSLLfree (dbs_ll_t dbs)
 }
 
 stats_t *
-DBSLLstats (dbs_ll_t dbs)
+table_stats (table_ll_t *dbs)
 {
     stats_t            *res = RTmallocZero (sizeof (*res));
     stats_t            *stat = &get_local (dbs)->stat;
