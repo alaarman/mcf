@@ -36,7 +36,7 @@ add_subdirectory(sylvan)
 
 
 add_executable(mc
-                mc.cpp
+                mc.c
                 pins2pins/por.c pins2pins/por.h
                 loader/loader.c loader/loader.h
                 loader/dve-pins.c loader/dve-pins.h
