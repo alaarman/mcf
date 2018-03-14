@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 2.7)
 set(CMAKE_MACOSX_RPATH 1)
 #set(CMAKE_BUILD_TYPE Debug)
 
-set(CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG}     -fPIC -Wall -DDEBUG=1 -g -O0")
+set(CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG}     -fPIC -Wall -DHAVE_SYLVAN -DDEBUG=1 -g -O0")
 set(CMAKE_CPP_FLAGS_DEBUG   "${CMAKE_CPP_FLAGS_DEBUG}   -fPIC -Wall -DDEBUG=1 -g -O0")
 set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   -fPIC -Wall -DDEBUG=1 -g -O0")
 set(CMAKE_LD_FLAGS_DEBUG    "${CMAKE_LD_FLAGS_DEBUG}    -g")
-set(CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE}   -fPIC -Wall")
+set(CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE}   -fPIC -Wall -DHAVE_SYLVAN")
 set(CMAKE_CPP_FLAGS_RELEASE "${CMAKE_CPP_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_LD_FLAGS_RELEASE  "${CMAKE_LD_FLAGS_RELEASE}")
@@ -37,6 +37,7 @@ add_subdirectory(peterson)
 add_subdirectory(ltl2ba)
 #add_subdirectory(ltsmin-lib)
 add_subdirectory(sylvan)
+add_subdirectory(vset)
 
 
 add_executable(mc
