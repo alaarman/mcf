@@ -9,6 +9,12 @@
 #include "util/runtime.h"
 #include "util/util.h"
 
+
+#define OLD_DEBUG DEBUG
+#undef DEBUG
+#define DEBUG 0
+
+
 #define DATA_BLOCK_SIZE 256
 //define DATA_BLOCK_SIZE 4
 #define TABLE_INITIAL 0xff
@@ -311,4 +317,6 @@ void SIdelete(string_index_t si,const char*str){
 	SIdeleteC(si,str,strlen(str));
 }
 
+#undef DEBUG
+#define DEBUG OLD_DEBUG
 

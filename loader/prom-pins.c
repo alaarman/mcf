@@ -253,6 +253,10 @@ groups_of_edge (model_t model, int edgeno, int index, const int **groups)
     return count;
 }
 
+#define OLD_DEBUG DEBUG
+#undef DEBUG
+#define DEBUG 0
+
 /**
  * Load .spins information into PINS (and ltstype)
  */
@@ -543,3 +547,6 @@ PromLoadModel(model_t model, const char *filename)
 
     GBsetGroupsOfEdge(model, groups_of_edge);
 }
+
+#undef DEBUG
+#define DEBUG OLD_DEBUG

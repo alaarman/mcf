@@ -6,6 +6,10 @@
 #include "util/runtime.h"
 #include "util/util.h"
 
+#define OLD_DEBUG DEBUG
+#undef DEBUG
+#define DEBUG 0
+
 #define MBLOCK 16
 
 struct array {
@@ -94,4 +98,6 @@ void ensure_access(array_manager_t man,size_t index){
 	}
 }
 
+#undef DEBUG
+#define DEBUG OLD_DEBUG
 

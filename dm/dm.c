@@ -12,6 +12,10 @@
 #include "util/runtime.h"
 #include "util/util.h"
 
+#define OLD_DEBUG DEBUG
+#undef DEBUG
+#define DEBUG 0
+
 void
 dm_clear_header(matrix_header_t* p)
 {
@@ -1847,3 +1851,6 @@ dm_equal_header(const matrix_header_t* const a, const matrix_header_t* const b)
 
     return 1;
 }
+
+#undef DEBUG
+#define DEBUG OLD_DEBUG

@@ -23,6 +23,10 @@
 #include "util/runtime.h"
 #include "util/util.h"
 
+#define OLD_DEBUG DEBUG
+#undef DEBUG
+#define DEBUG 0
+
 void *
 RTdlopen(const char *name)
 {
@@ -293,9 +297,6 @@ float RTrealTime(rt_timer_t timer){
     }
 }
 
-#define OLD_DEBUG DEBUG
-#undef DEBUG
-#define DEBUG 0
 
 void *
 RTmalloc(size_t size)

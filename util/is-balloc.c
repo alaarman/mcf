@@ -10,6 +10,11 @@
 
 #define INIT_MAX_BLOCKS (1024*64)
 
+
+#define OLD_DEBUG DEBUG
+#undef DEBUG
+#define DEBUG 0
+
 struct isb_allocator {
     size_t el_size;
     size_t max_blocks;
@@ -210,3 +215,6 @@ isba_index(isb_allocator_t buf, size_t index)
     size_t rest = index & (BLOCK_ELT_SIZE-1);
     return &buf->blocks[block][rest * buf->el_size];
 }
+
+#undef DEBUG
+#define DEBUG OLD_DEBUG
