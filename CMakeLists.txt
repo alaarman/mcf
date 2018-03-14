@@ -32,6 +32,7 @@ add_subdirectory(util-mc)
 add_subdirectory(pins)
 add_subdirectory(peterson)
 add_subdirectory(ltl2ba)
+#add_subdirectory(ltsmin-lib)
 add_subdirectory(sylvan)
 
 
@@ -44,4 +45,4 @@ add_executable(mc
                 loader/dlopen-pins.c loader/dlopen-pins.h
 )
 
-target_link_libraries(mc pins pthread ${CMAKE_DL_LIBS})
+target_link_libraries(mc pins util-mc pthread ${CMAKE_DL_LIBS})
