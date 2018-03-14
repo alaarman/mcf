@@ -9,6 +9,22 @@
 \brief Process architecture independent RunTime utilities.
 */
 
+typedef struct {
+    char* key;
+    int val;
+} si_map_entry;
+
+/**
+\brief Find the value for a given key, or -1 if it does not exist.
+ */
+extern int linear_search(si_map_entry map[],const char*key);
+
+/**
+\brief Find the key name for a given option, or "not found" if it does not exist.
+ */
+extern char *key_search(si_map_entry map[],const int val);
+
+
 /**
  * Open the given library, abort on failure.
  */

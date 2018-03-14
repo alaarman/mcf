@@ -27,6 +27,22 @@
 #undef DEBUG
 #define DEBUG 0
 
+int linear_search(si_map_entry map[],const char*key){
+    while(map[0].key){
+        if(!strcmp(map[0].key,key)) return map[0].val;
+        map++;
+    }
+    return -1;
+}
+
+char *key_search(si_map_entry map[],const int val){
+    while(map[0].key){
+        if(map[0].val == val) return map[0].key;
+        map++;
+    }
+    return "not found";
+}
+
 void *
 RTdlopen(const char *name)
 {
