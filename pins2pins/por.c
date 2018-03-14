@@ -44,12 +44,10 @@ por_cb_filter (void *context, transition_info_t *ti, int *dst, int *cpy)
 {
     int action = ti->group;
     por_context_t *por = (por_context_t*) context;
-    if (!por->action_selected[action]) {
-        return;
+    if (por->action_selected[action]) {
+        por->cb_org(por->ctx_org, ti, dst, cpy);
+        por->emitted++;
     }
-
-    por->cb_org(por->ctx_org, ti, dst, cpy);
-    por->emitted++;
 }
 
 static inline int
