@@ -1,3 +1,5 @@
+#include "tree-ll.h"
+
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -8,7 +10,6 @@
 #include <util/util.h>
 #include "util-mc/atomics.h"
 #include "util-mc/clt_table.h"
-#include "util-mc/treedbs-ll.h"
 
 
 static const int        TABLE_SIZE = 26;
