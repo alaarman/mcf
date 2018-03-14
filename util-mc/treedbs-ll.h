@@ -20,9 +20,9 @@
  * This tree DB also supports incremental updates: given a related vector p the
  * insert of v updates only parts of the tree that cover the difference between
  * v and p. To this end, a local tree_t representation is returned (see next and
- * prev arguments of TreeDBSLLlookup_incr) to be stored by the client.
+ * prev arguments of tree_ll_lookup_incr) to be stored by the client.
  * The original vector and a unique reference can be extracted from a local
- * tree using TreeDBSLLdata and TreeDBSLLindex.
+ * tree using tree_ll_data and tree_ll_index.
  *
  * For details refer to:
  * @incollection {springerlink:10.1007/978-3-642-22306-8_4,
@@ -67,15 +67,15 @@
 /**
 Abstract type tree database.
 */
-typedef struct treedbs_ll_s treedbs_ll_t;
+typedef struct treedbs_ll_s tree_ll_t;
 
 typedef size_t tree_ref_t;
 
 typedef int *tree_t;
 
-extern treedbs_ll_t *TreeDBSLLcreate (int len, int ratio, int satellite_bits,
+extern tree_ll_t *tree_ll_create (int len, int ratio, int satellite_bits,
                                      int slim, int indexing);
-extern treedbs_ll_t *TreeDBSLLcreate_sized (int len, int size, int ratio,
+extern tree_ll_t *tree_ll_create_sized (int len, int size, int ratio,
                                            int satellite_bits, int slim,
                                            int indexing);
 
@@ -87,32 +87,32 @@ extern treedbs_ll_t *TreeDBSLLcreate_sized (int len, int size, int ratio,
 \param m the dependency matrix
 \param satellite_bits the number of satellite bits  (>0 implies indexing)
 \param slim use cleary table for roots (implies !indexing)
-\param indexing ensure dense references (0 <= ref < 2^size) via TreeDBSLLindex
+\param indexing ensure dense references (0 <= ref < 2^size) via tree_ll_index
        (!indexing is faster)
 \return the created tree DB
 */
-extern treedbs_ll_t *TreeDBSLLcreate_dm (int len, int size, int ratio,
+extern tree_ll_t *tree_ll_create_dm (int len, int size, int ratio,
                                         matrix_t *m, int satellite_bits,
                                         int slim, int indexing);
 
-extern int          TreeDBSLLtry_set_sat_bit (treedbs_ll_t *dbs,
+extern int          tree_ll_try_set_sat_bit (tree_ll_t *dbs,
                                               const tree_ref_t ref, int index);
-extern int          TreeDBSLLtry_unset_sat_bit (treedbs_ll_t *dbs,
+extern int          tree_ll_try_unset_sat_bit (tree_ll_t *dbs,
                                                 const tree_ref_t ref, int index);
-extern int          TreeDBSLLget_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref,
+extern int          tree_ll_get_sat_bit (tree_ll_t *dbs, const tree_ref_t ref,
                                           int index);
-extern void         TreeDBSLLunset_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref,
+extern void         tree_ll_unset_sat_bit (tree_ll_t *dbs, const tree_ref_t ref,
                                             int index);
-extern uint32_t     TreeDBSLLget_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref);
-extern uint32_t     TreeDBSLLinc_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref);
-extern uint32_t     TreeDBSLLdec_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref);
-extern int          TreeDBSLLtry_set_sat_bits (treedbs_ll_t *dbs,
+extern uint32_t     tree_ll_get_sat_bits (tree_ll_t *dbs, const tree_ref_t ref);
+extern uint32_t     tree_ll_inc_sat_bits (tree_ll_t *dbs, const tree_ref_t ref);
+extern uint32_t     tree_ll_dec_sat_bits (tree_ll_t *dbs, const tree_ref_t ref);
+extern int          tree_ll_try_set_sat_bits (tree_ll_t *dbs,
                                                const tree_ref_t ref,
                                                size_t bits, size_t offs,
                                                uint64_t exp, uint64_t new_val);
 
-extern int          TreeDBSLLfop (treedbs_ll_t *dbs, const int *v, bool insert);
-extern int          TreeDBSLLfop_incr (treedbs_ll_t *dbs, const int *v,
+extern int          tree_ll_fop (tree_ll_t *dbs, const int *v, bool insert);
+extern int          tree_ll_fop_incr (tree_ll_t *dbs, const int *v,
                                           tree_t prev, tree_t next, bool insert);
 
 /**
@@ -125,45 +125,45 @@ found.
 \param group the group to do incremental lookup for (-1 unknown)
 \return 1 if the vector was present, 0 if it was added
 */
-extern int          TreeDBSLLfop_dm (treedbs_ll_t *dbs, const int *v,
+extern int          tree_ll_fop_dm (tree_ll_t *dbs, const int *v,
                                         tree_t prev, tree_t next, int group, bool insert);
 
 
 static inline int
-TreeDBSLLlookup (treedbs_ll_t *dbs, const int *v)
+tree_ll_lookup (tree_ll_t *dbs, const int *v)
 {
-    return TreeDBSLLfop (dbs, v, true);
+    return tree_ll_fop (dbs, v, true);
 }
 static inline int
-TreeDBSLLlookup_incr (treedbs_ll_t *dbs, const int *v, tree_t prev, tree_t next)
+tree_ll_lookup_incr (tree_ll_t *dbs, const int *v, tree_t prev, tree_t next)
 {
-    return TreeDBSLLfop_incr (dbs, v, prev, next, true);
+    return tree_ll_fop_incr (dbs, v, prev, next, true);
 }
 static inline int
-TreeDBSLLlookup_dm (treedbs_ll_t *dbs, const int *v,
+tree_ll_lookup_dm (tree_ll_t *dbs, const int *v,
                     tree_t prev, tree_t next, int group)
 {
-    return TreeDBSLLfop_dm (dbs, v, prev, next, group, true);
+    return tree_ll_fop_dm (dbs, v, prev, next, group, true);
 }
 static inline int
-TreeDBSLLfind (treedbs_ll_t *dbs, const int *v)
+tree_ll_find (tree_ll_t *dbs, const int *v)
 {
-    return TreeDBSLLfop (dbs, v, false);
+    return tree_ll_fop (dbs, v, false);
 }
 static inline int
-TreeDBSLLfind_incr (treedbs_ll_t *dbs, const int *v, tree_t prev, tree_t next)
+tree_ll_find_incr (tree_ll_t *dbs, const int *v, tree_t prev, tree_t next)
 {
-    return TreeDBSLLfop_incr (dbs, v, prev, next, false);
+    return tree_ll_fop_incr (dbs, v, prev, next, false);
 }
 static inline int
-TreeDBSLLfind_dm (treedbs_ll_t *dbs, const int *v,
+tree_ll_find_dm (tree_ll_t *dbs, const int *v,
                     tree_t prev, tree_t next, int group)
 {
-    return TreeDBSLLfop_dm (dbs, v, prev, next, group, false);
+    return tree_ll_fop_dm (dbs, v, prev, next, group, false);
 }
 
 
-extern tree_t       TreeDBSLLget (treedbs_ll_t *dbs, const tree_ref_t ref,
+extern tree_t       tree_ll_get (tree_ll_t *dbs, const tree_ref_t ref,
                                   int *dst);
 
 typedef struct treedbs_ll_inlined_s {
@@ -173,12 +173,12 @@ typedef struct treedbs_ll_inlined_s {
 } treedbs_ll_inlined_t;
 
 static inline tree_t
-TreeDBSLLdata (treedbs_ll_t *dbs, tree_t data) {
+tree_ll_data (tree_ll_t *dbs, tree_t data) {
     return data + ((treedbs_ll_inlined_t *)dbs)->nNodes;
 }
 
 static inline tree_ref_t
-TreeDBSLLindex (treedbs_ll_t *dbs, tree_t data) {
+tree_ll_index (tree_ll_t *dbs, tree_t data) {
     int64_t            *d64 = (int64_t *)data;
     treedbs_ll_inlined_t *d = (treedbs_ll_inlined_t *)dbs;
     return d64[!d->indexing];
@@ -187,15 +187,15 @@ TreeDBSLLindex (treedbs_ll_t *dbs, tree_t data) {
 /**
 \brief Free the memory used by a tree dbs.
 */
-extern void         TreeDBSLLfree (treedbs_ll_t *dbs);
+extern void         tree_ll_free (tree_ll_t *dbs);
 
-extern void         TreeDBSLLcache (treedbs_ll_t *dbs, size_t size);
+extern void         tree_ll_cache (tree_ll_t *dbs, size_t size);
 
 /**
 \brief return internal statistics
 \see stats.h
 \param dbs The dbs
 */
-extern stats_t     *TreeDBSLLstats (treedbs_ll_t *dbs);
+extern stats_t     *tree_ll_stats (tree_ll_t *dbs);
 
 #endif

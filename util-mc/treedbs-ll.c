@@ -51,7 +51,7 @@ typedef struct loc_s {
 } loc_t;
 
 static inline loc_t *
-get_local (treedbs_ll_t *dbs)
+get_local (tree_ll_t *dbs)
 {
     loc_t              *loc = pthread_getspecific (dbs->local_key);
     if (loc == NULL) {
@@ -87,7 +87,7 @@ bit_pos (uint16_t bits, uint16_t index)
 }
 
 static inline uint64_t
-b2s (treedbs_ll_t *dbs, uint64_t bits)
+b2s (tree_ll_t *dbs, uint64_t bits)
 {
     uint64_t            sat = bits & dbs->root.sat_mask;
     sat = (sat >> dbs->root.sat_left) | ((sat >> dbs->root.sat_right) & 0xFFFF);
@@ -95,7 +95,7 @@ b2s (treedbs_ll_t *dbs, uint64_t bits)
 }
 
 static inline uint64_t
-s2b (treedbs_ll_t *dbs, uint64_t sat)
+s2b (tree_ll_t *dbs, uint64_t sat)
 {
     uint64_t            bits;
     bits = (sat << dbs->root.sat_left) | ((sat << dbs->root.sat_right));
@@ -103,13 +103,13 @@ s2b (treedbs_ll_t *dbs, uint64_t sat)
 }
 
 uint32_t
-TreeDBSLLget_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref)
+tree_ll_get_sat_bits (tree_ll_t *dbs, const tree_ref_t ref)
 {
     return b2s (dbs, atomic_read(dbs->root.table+ref));
 }
 
 int
-TreeDBSLLget_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref, int index)
+tree_ll_get_sat_bit (tree_ll_t *dbs, const tree_ref_t ref, int index)
 {
     uint64_t            bit = bit_pos (dbs->root.sat_bits, index);
     uint64_t            hash_and_sat = atomic_read (dbs->root.table+ref);
@@ -118,7 +118,7 @@ TreeDBSLLget_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref, int index)
 }
 
 void
-TreeDBSLLunset_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref, int index)
+tree_ll_unset_sat_bit (tree_ll_t *dbs, const tree_ref_t ref, int index)
 {
     uint64_t            bit = bit_pos (dbs->root.sat_bits, index);
     uint64_t            hash_and_sat = atomic_read (dbs->root.table+ref);
@@ -128,7 +128,7 @@ TreeDBSLLunset_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref, int index)
 }
 
 int
-TreeDBSLLtry_set_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref, int index)
+tree_ll_try_set_sat_bit (tree_ll_t *dbs, const tree_ref_t ref, int index)
 {
     uint64_t            bit = bit_pos (dbs->root.sat_bits, index);
     uint64_t            hash_and_sat = atomic_read (dbs->root.table+ref);
@@ -139,7 +139,7 @@ TreeDBSLLtry_set_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref, int index)
 }
 
 int
-TreeDBSLLtry_unset_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref, int index)
+tree_ll_try_unset_sat_bit (tree_ll_t *dbs, const tree_ref_t ref, int index)
 {
     uint64_t            bit = bit_pos (dbs->root.sat_bits, index);
     uint64_t            hash_and_sat = atomic_read (dbs->root.table+ref);
@@ -150,7 +150,7 @@ TreeDBSLLtry_unset_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref, int index)
 }
 
 static inline int
-cas_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref,
+cas_sat_bits (tree_ll_t *dbs, const tree_ref_t ref,
               uint64_t read, uint64_t value)
 {
     value = s2b (dbs, value) | (read & dbs->root.sat_nmask);
@@ -158,7 +158,7 @@ cas_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref,
 }
 
 int
-TreeDBSLLtry_set_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref,
+tree_ll_try_set_sat_bits (tree_ll_t *dbs, const tree_ref_t ref,
                            size_t bits, size_t offs,
                            uint64_t exp, uint64_t new_val)
 {
@@ -179,7 +179,7 @@ TreeDBSLLtry_set_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref,
 }
 
 uint32_t
-TreeDBSLLinc_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref)
+tree_ll_inc_sat_bits (tree_ll_t *dbs, const tree_ref_t ref)
 {
     uint64_t            new_val, bits;
     do {
@@ -192,7 +192,7 @@ TreeDBSLLinc_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref)
 }
 
 uint32_t
-TreeDBSLLdec_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref)
+tree_ll_dec_sat_bits (tree_ll_t *dbs, const tree_ref_t ref)
 {
     uint64_t            new_val, bits;
     do {
@@ -264,7 +264,7 @@ cmp_i64(int *v1, int *v2, size_t ref) {
 }
 
 static inline uint64_t
-concat_n_mix (treedbs_ll_t *dbs, uint64_t a, uint64_t b)
+concat_n_mix (tree_ll_t *dbs, uint64_t a, uint64_t b)
 {
     // append the two numbers while doing some coarse-grained mixing
     uint64_t key = (b + a) & dbs->data.mask;
@@ -273,7 +273,7 @@ concat_n_mix (treedbs_ll_t *dbs, uint64_t a, uint64_t b)
 }
 
 static inline
-int clt_lookup (treedbs_ll_t *dbs, int *next, bool insert)
+int clt_lookup (tree_ll_t *dbs, int *next, bool insert)
 {
     uint64_t key = concat_n_mix (dbs, next[2], next[3]);
     int seen = clt_find_or_put (dbs->clt, key, insert);
@@ -282,7 +282,7 @@ int clt_lookup (treedbs_ll_t *dbs, int *next, bool insert)
 }
 
 int
-TreeDBSLLfop (treedbs_ll_t *dbs, const int *vector, bool insert)
+tree_ll_fop (tree_ll_t *dbs, const int *vector, bool insert)
 {
     loc_t              *loc = get_local (dbs);
     size_t              n = dbs->nNodes;
@@ -310,7 +310,7 @@ TreeDBSLLfop (treedbs_ll_t *dbs, const int *vector, bool insert)
 }
 
 int
-TreeDBSLLfop_incr (treedbs_ll_t *dbs, const int *v, tree_t prev,
+tree_ll_fop_incr (tree_ll_t *dbs, const int *v, tree_t prev,
                    tree_t next, bool insert)
 {
     loc_t              *loc = get_local (dbs);
@@ -318,7 +318,7 @@ TreeDBSLLfop_incr (treedbs_ll_t *dbs, const int *v, tree_t prev,
     uint64_t            res = 0;
     int                 seen = 1;
     if ( NULL == prev ) { //first call
-        int result = TreeDBSLLfop (dbs, v, insert);
+        int result = tree_ll_fop (dbs, v, insert);
         memcpy (next, loc->storage, sizeof(int[n<<1]));
         return result;
     }
@@ -346,11 +346,11 @@ TreeDBSLLfop_incr (treedbs_ll_t *dbs, const int *v, tree_t prev,
 }
 
 int
-TreeDBSLLfop_dm (treedbs_ll_t *dbs, const int *v, tree_t prev,
+tree_ll_fop_dm (tree_ll_t *dbs, const int *v, tree_t prev,
                  tree_t next, int group, bool insert)
 {
     if ( group == -1 || NULL == prev )
-        return TreeDBSLLfop_incr (dbs, v, prev, next, insert);
+        return tree_ll_fop_incr (dbs, v, prev, next, insert);
     loc_t              *loc = get_local (dbs);
     int                 seen = 1;
     int                 i;
@@ -380,7 +380,7 @@ TreeDBSLLfop_dm (treedbs_ll_t *dbs, const int *v, tree_t prev,
 }
 
 tree_t
-TreeDBSLLget (treedbs_ll_t *dbs, const tree_ref_t ref, int *d)
+tree_ll_get (tree_ll_t *dbs, const tree_ref_t ref, int *d)
 {
     uint32_t           *dst     = (uint32_t*)d;
     int64_t            *dst64   = (int64_t *)dst;
@@ -405,16 +405,16 @@ LOCALfree (void *arg)
     RTfree (loc);
 }
 
-treedbs_ll_t*
-TreeDBSLLcreate (int nNodes, int ratio, int satellite_bits, int slim, int indexing)
+tree_ll_t*
+tree_ll_create (int nNodes, int ratio, int satellite_bits, int slim, int indexing)
 {
-    return TreeDBSLLcreate_dm (nNodes, TABLE_SIZE, ratio, NULL, satellite_bits, slim, indexing);
+    return tree_ll_create_dm (nNodes, TABLE_SIZE, ratio, NULL, satellite_bits, slim, indexing);
 }
 
-treedbs_ll_t*
-TreeDBSLLcreate_sized (int nNodes, int size, int ratio, int satellite_bits, int slim, int indexing)
+tree_ll_t*
+tree_ll_create_sized (int nNodes, int size, int ratio, int satellite_bits, int slim, int indexing)
 {
-    return TreeDBSLLcreate_dm (nNodes, size, ratio, NULL, satellite_bits, slim, indexing);
+    return tree_ll_create_dm (nNodes, size, ratio, NULL, satellite_bits, slim, indexing);
 }
 
 /**
@@ -430,7 +430,7 @@ TreeDBSLLcreate_sized (int nNodes, int size, int ratio, int satellite_bits, int 
 *    - - - + + - - -    8 9 0 1 2 3 4 5
 */
 void
-project_matrix_to_tree (treedbs_ll_t *dbs, matrix_t *m)
+project_matrix_to_tree (tree_ll_t *dbs, matrix_t *m)
 {
     size_t              nNodes = dbs->nNodes;
     int                 tmp[nNodes * 2];
@@ -478,8 +478,8 @@ create_nodes (node_table_t *nodes, size_t log_size, size_t sat_bits, int alloc,
     }
 }
 
-treedbs_ll_t *
-TreeDBSLLcreate_dm (int nNodes, int size, int ratio, matrix_t * m,
+tree_ll_t *
+tree_ll_create_dm (int nNodes, int size, int ratio, matrix_t * m,
                     int satellite_bits, int slim, int indexing)
 {
     Assert (size <= DB_SIZE_MAX, "Tree too large: %d", size);
@@ -488,7 +488,7 @@ TreeDBSLLcreate_dm (int nNodes, int size, int ratio, matrix_t * m,
     Assert (satellite_bits + 2 * (size-ratio) <= 64,
                "Tree table size and satellite bits (%d) too large or ratio too "
                "low (%d).", satellite_bits, ratio);
-    treedbs_ll_t        *dbs = RTalign (CACHE_LINE_SIZE, sizeof(struct treedbs_ll_s));
+    tree_ll_t        *dbs = RTalign (CACHE_LINE_SIZE, sizeof(struct treedbs_ll_s));
     dbs->nNodes = nNodes;
     dbs->ratio = ratio;
     dbs->slim = slim;
@@ -505,7 +505,7 @@ TreeDBSLLcreate_dm (int nNodes, int size, int ratio, matrix_t * m,
 }
 
 void
-TreeDBSLLfree (treedbs_ll_t *dbs)
+tree_ll_free (tree_ll_t *dbs)
 {
     RTfree (dbs->data.table);
     if (dbs->slim) {
@@ -522,7 +522,7 @@ TreeDBSLLfree (treedbs_ll_t *dbs)
 }
 
 stats_t *
-TreeDBSLLstats (treedbs_ll_t *dbs)
+tree_ll_stats (tree_ll_t *dbs)
 {
 
     stats_t            *res = RTmalloc (sizeof (*res));
