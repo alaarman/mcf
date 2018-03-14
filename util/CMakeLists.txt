@@ -14,6 +14,7 @@ add_library(util STATIC
         is-balloc.c is-balloc.h
         list.h list.c
         runtime.h runtime.c
+        simplemap.h simplemap.c
         string-map.h string-map.c
         stringindex.h stringindex.c
         tables.h tables.c
