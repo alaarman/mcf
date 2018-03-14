@@ -38,6 +38,7 @@ add_subdirectory(sylvan)
 
 add_executable(mc
                 mc.c
+                alg/enum-dfs.c alg/enum-dfs.h
                 pins2pins/por.c pins2pins/por.h
                 loader/loader.c loader/loader.h
                 loader/dve-pins.c loader/dve-pins.h
