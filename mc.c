@@ -1,6 +1,6 @@
 
 /**
- * Your first LTL model checker
+ * Your first model checker
  *
  * PINS = Partitioned Next-State Interface
  * (previously called 'greybox', hence the mix of GB* / pins_* functions)
@@ -22,23 +22,22 @@ static size_t TABLE_SIZE = 28; // log2 size of tree table
 static size_t progress = 10000;
 
 typedef struct seach_s {
-    model_t model;
-    size_t state_size_int;
+    model_t model;           // PINS model
 
-    dfs_stack_t *stack;        // stack
-    tree_ll_t *visited;        // visited set
+    dfs_stack_t *stack;      // stack
+    tree_ll_t *visited;      // visited set
     size_t states;
     size_t trans;
     size_t deadlocks;
 
-    int *dst_tree;            // additional space for storing new "trees"
-    int *src_tree;            // pointer to source tree (on stack)
+    int *dst_tree;           // additional space for storing new "trees"
+    int *src_tree;           // pointer to source tree (on stack)
 } search_t;
 
 static inline void
-monitor_progress(search_t *S, size_t count) {
+monitor_progress(search_t *S, size_t successor_count) {
     S->states++;
-    S->deadlocks += count == 0;
+    S->deadlocks += successor_count == 0;
     if (S->states == progress) {
         Print("States explored: %zu, transitions: %zu", S->states, S->trans);
         progress <<= 1; // times 2
@@ -56,7 +55,7 @@ void process_cb(void *ctx, transition_info_t *ti, int *dst, int *cpy) {
                               ti->group, true);
     if (res == DB_ROOTS_FULL || res == DB_LEAFS_FULL)
         Abort ("Tree table full, enlarge TABLE_SIZE");
-    if (res == 0) {                       	   // vector is new
+    if (res == 0) {                              // vector is new
         dfs_stack_push (S->stack, S->dst_tree); // add !tree! to the stack
     }
 }
@@ -67,8 +66,8 @@ void process_cb(void *ctx, transition_info_t *ti, int *dst, int *cpy) {
 void dfs(search_t *S){
     while (dfs_stack_size(S->stack) > 0) {
 
-    		// greedy search:
-    		while (dfs_stack_frame_size(S->stack) > 0) {
+        // greedy search:
+        while (dfs_stack_frame_size(S->stack) > 0) {
             S->src_tree = dfs_stack_top(S->stack);
             int *src = tree_ll_data(S->visited, S->src_tree);
             dfs_stack_enter (S->stack);
@@ -77,8 +76,8 @@ void dfs(search_t *S){
         }
 
         // backtrack:
-		dfs_stack_leave (S->stack);
-		dfs_stack_pop(S->stack);
+        dfs_stack_leave (S->stack);
+        dfs_stack_pop(S->stack);
     }
 }
 
@@ -87,7 +86,7 @@ void dfs(search_t *S){
  */
 int main(int argc, const char **argv) {
 
-    // Parse command line options
+    // Parse command line options:
     const char *fname = NULL;
     bool    POR = false;
     for (int i = 1; i < argc; i++) {
@@ -102,15 +101,14 @@ int main(int argc, const char **argv) {
     }
     if (fname == NULL) Abort("Supply a file name.");
 
-    // Load PINS model
+    // Load PINS model:
     model_t model = GBcreateBase();
     GBsetChunkMap (model, simple_table_factory_create());
     pins_model_loader (model, fname);
     if (POR) {
-            Print("Activating Partial Order Reduction layer");
+        Print("Activating Partial Order Reduction layer");
         model = pins2pins_por(model); // wrap model
     }
-
 
     // Print model info:
     size_t l = pins_get_state_variable_count(model);
@@ -128,29 +126,35 @@ int main(int argc, const char **argv) {
             Print0("%s,", pins_get_state_label_name(model, i));
     Print(" ");
 
-    // setup search
+    // setup search:
     search_t S;
     S.model = model;
-    S.state_size_int = l;
     S.states = S.trans = S.deadlocks = 0;
     S.stack = dfs_stack_create(2 * l);        // store trees
     S.dst_tree = malloc(sizeof(int[2 * l]));
     matrix_t *m = GBgetDMInfo(model);
     S.visited = tree_ll_create_dm (l, TABLE_SIZE, 2, m, 0, false, false);
-
     int *initial = malloc(sizeof(int[l]));
     GBgetInitialState (model, initial);             // place initial state on stack
-    // add initial state to stack:
     tree_ll_fop_dm (S.visited, initial, NULL, S.dst_tree, -1, true);
     dfs_stack_push (S.stack, S.dst_tree);
 
-    // Start search
+    // Start search:
     rt_timer_t timer = RTcreateTimer();
     RTstartTimer(timer);
     dfs(&S);
     RTstopTimer(timer);
+
+    // Print final statistics:
     RTprintTimer(timer, "\nTotal exploration time");
     Print("State space has %zu states, %zu transitions, and %zu deadlocks",
           S.states, S.trans,  S.deadlocks);
+    stats_t *stats = tree_ll_stats (S.visited);
+    Assert (stats->elts == S.states, "Wrong state count in tree");
+    Print(" ");
+    size_t tree_m = sizeof(int[2][stats->nodes]);
+    size_t table_m = sizeof(int[l]) * S.states;
+    Print("Tree memory used %zu KB (%.2f%% of %zu KB)", tree_m / 1024, (double)tree_m/table_m*100, table_m / 1024);
+    Print("Compressed size: %.2f B/state", (double)tree_m / S.states);
     free (initial);
 }
