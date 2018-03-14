@@ -28,6 +28,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
+add_subdirectory(bignum)
 add_subdirectory(util)
 add_subdirectory(dm)
 add_subdirectory(util-mc)
