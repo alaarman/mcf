@@ -2,6 +2,7 @@ CMakeCache*
 .gdb_history
 CMakeFiles
 Makefile
+Makefile.in
 *.swp
 mc
 *.dSYM
@@ -12,5 +13,5 @@ mc
 *.Plo
 *.Tpo
 *.lo
-*.cmake
+cmake_install.cmake
 *.spins*
