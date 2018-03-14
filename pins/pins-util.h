@@ -148,5 +148,10 @@ extern chunk pins_chunk_get (model_t model, int type_no, int index);
 */
 extern int pins_has_guards (model_t model);
 
+// for backwards compatibility
+extern void GBchunkPut (model_t model, int type_no, const chunk c);
+extern void GBchunkPutAt (model_t model, int type_no, const chunk c, int index);
+extern chunk GBchunkGet (model_t model,int type_no,int chunk_no);
+extern int GBchunkCount(model_t model,int type_no);
 
 #endif // PINS_UTIL

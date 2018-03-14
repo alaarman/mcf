@@ -329,3 +329,27 @@ void GBprintStateLabelGroupInfo(FILE* file, model_t model) {
         }
     }
 }
+
+void
+GBchunkPut (model_t model, int type_no, const chunk c)
+{
+    pins_chunk_put (model, type_no, c);
+}
+
+void
+GBchunkPutAt (model_t model, int type_no, const chunk c, int index)
+{
+    pins_chunk_put_at (model, type_no, c, index);
+}
+
+chunk
+GBchunkGet (model_t model,int type_no,int chunk_no)
+{
+    return pins_chunk_get (model, type_no, chunk_no);
+}
+
+int
+GBchunkCount(model_t model,int type_no)
+{
+    return pins_chunk_count (model, type_no);
+}

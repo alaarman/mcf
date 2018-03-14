@@ -12,6 +12,14 @@
 #include "util/tables.h"
 
 
+
+typedef struct pins_model *model_t;
+/**< @brief Abstract type for a model.
+*/
+
+
+#include <pins/pins-util.h>
+
 /**
  @file pins.h
  @brief The Partitioned Next-State Interface (PINS) to models.
@@ -23,10 +31,6 @@ This version assumes a few things:
 - The types of labels are the same for each transition.
 */
 
-
-typedef struct pins_model *model_t;
-/**< @brief Abstract type for a model.
-*/
 
 /**
 \brief Struct to describe a transition. Holds edge label and group information
@@ -528,7 +532,6 @@ extern void GBinitModelDefaults (model_t *p_model, model_t default_src);
 /**
 */
 //extern void GBsetPrettyPrint(model_t model,chunk2pretty_t chunk2pretty);
-
 
 /** Retrieve the map used for a specific type. */
 extern value_table_t GBgetChunkMap(model_t model,int type_no);
