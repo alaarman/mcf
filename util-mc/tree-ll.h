@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #include <dm/dm.h>
-#include "util-mc/dbs-ll.h"
+#include "table-ll.h"
 
 /**
  * \file treedbs-ll.h

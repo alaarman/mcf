@@ -7,8 +7,8 @@
 
 #include <util/runtime.h>
 #include <util/util.h>
+#include "table-ll.h"
 #include "util-mc/atomics.h"
-#include "util-mc/dbs-ll.h"
 
 static const int        TABLE_SIZE = 24;
 static const mem_hash_t EMPTY = 0;
