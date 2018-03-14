@@ -67,15 +67,15 @@
 /**
 Abstract type tree database.
 */
-typedef struct treedbs_ll_s *treedbs_ll_t;
+typedef struct treedbs_ll_s treedbs_ll_t;
 
 typedef size_t tree_ref_t;
 
 typedef int *tree_t;
 
-extern treedbs_ll_t TreeDBSLLcreate (int len, int ratio, int satellite_bits,
+extern treedbs_ll_t *TreeDBSLLcreate (int len, int ratio, int satellite_bits,
                                      int slim, int indexing);
-extern treedbs_ll_t TreeDBSLLcreate_sized (int len, int size, int ratio,
+extern treedbs_ll_t *TreeDBSLLcreate_sized (int len, int size, int ratio,
                                            int satellite_bits, int slim,
                                            int indexing);
 
@@ -91,28 +91,28 @@ extern treedbs_ll_t TreeDBSLLcreate_sized (int len, int size, int ratio,
        (!indexing is faster)
 \return the created tree DB
 */
-extern treedbs_ll_t TreeDBSLLcreate_dm (int len, int size, int ratio,
+extern treedbs_ll_t *TreeDBSLLcreate_dm (int len, int size, int ratio,
                                         matrix_t *m, int satellite_bits,
                                         int slim, int indexing);
 
-extern int          TreeDBSLLtry_set_sat_bit (const treedbs_ll_t dbs,
+extern int          TreeDBSLLtry_set_sat_bit (treedbs_ll_t *dbs,
                                               const tree_ref_t ref, int index);
-extern int          TreeDBSLLtry_unset_sat_bit (const treedbs_ll_t dbs,
+extern int          TreeDBSLLtry_unset_sat_bit (treedbs_ll_t *dbs,
                                                 const tree_ref_t ref, int index);
-extern int          TreeDBSLLget_sat_bit (const treedbs_ll_t dbs, const tree_ref_t ref,
+extern int          TreeDBSLLget_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref,
                                           int index);
-extern void         TreeDBSLLunset_sat_bit (const treedbs_ll_t dbs, const tree_ref_t ref,
+extern void         TreeDBSLLunset_sat_bit (treedbs_ll_t *dbs, const tree_ref_t ref,
                                             int index);
-extern uint32_t     TreeDBSLLget_sat_bits (const treedbs_ll_t dbs, const tree_ref_t ref);
-extern uint32_t     TreeDBSLLinc_sat_bits (const treedbs_ll_t dbs, const tree_ref_t ref);
-extern uint32_t     TreeDBSLLdec_sat_bits (const treedbs_ll_t dbs, const tree_ref_t ref);
-extern int          TreeDBSLLtry_set_sat_bits (const treedbs_ll_t dbs,
+extern uint32_t     TreeDBSLLget_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref);
+extern uint32_t     TreeDBSLLinc_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref);
+extern uint32_t     TreeDBSLLdec_sat_bits (treedbs_ll_t *dbs, const tree_ref_t ref);
+extern int          TreeDBSLLtry_set_sat_bits (treedbs_ll_t *dbs,
                                                const tree_ref_t ref,
                                                size_t bits, size_t offs,
                                                uint64_t exp, uint64_t new_val);
 
-extern int          TreeDBSLLfop (const treedbs_ll_t dbs, const int *v, bool insert);
-extern int          TreeDBSLLfop_incr (const treedbs_ll_t dbs, const int *v,
+extern int          TreeDBSLLfop (treedbs_ll_t *dbs, const int *v, bool insert);
+extern int          TreeDBSLLfop_incr (treedbs_ll_t *dbs, const int *v,
                                           tree_t prev, tree_t next, bool insert);
 
 /**
@@ -125,45 +125,45 @@ found.
 \param group the group to do incremental lookup for (-1 unknown)
 \return 1 if the vector was present, 0 if it was added
 */
-extern int          TreeDBSLLfop_dm (const treedbs_ll_t dbs, const int *v,
+extern int          TreeDBSLLfop_dm (treedbs_ll_t *dbs, const int *v,
                                         tree_t prev, tree_t next, int group, bool insert);
 
 
 static inline int
-TreeDBSLLlookup (const treedbs_ll_t dbs, const int *v)
+TreeDBSLLlookup (treedbs_ll_t *dbs, const int *v)
 {
     return TreeDBSLLfop (dbs, v, true);
 }
 static inline int
-TreeDBSLLlookup_incr (const treedbs_ll_t dbs, const int *v, tree_t prev, tree_t next)
+TreeDBSLLlookup_incr (treedbs_ll_t *dbs, const int *v, tree_t prev, tree_t next)
 {
     return TreeDBSLLfop_incr (dbs, v, prev, next, true);
 }
 static inline int
-TreeDBSLLlookup_dm (const treedbs_ll_t dbs, const int *v,
+TreeDBSLLlookup_dm (treedbs_ll_t *dbs, const int *v,
                     tree_t prev, tree_t next, int group)
 {
     return TreeDBSLLfop_dm (dbs, v, prev, next, group, true);
 }
 static inline int
-TreeDBSLLfind (const treedbs_ll_t dbs, const int *v)
+TreeDBSLLfind (treedbs_ll_t *dbs, const int *v)
 {
     return TreeDBSLLfop (dbs, v, false);
 }
 static inline int
-TreeDBSLLfind_incr (const treedbs_ll_t dbs, const int *v, tree_t prev, tree_t next)
+TreeDBSLLfind_incr (treedbs_ll_t *dbs, const int *v, tree_t prev, tree_t next)
 {
     return TreeDBSLLfop_incr (dbs, v, prev, next, false);
 }
 static inline int
-TreeDBSLLfind_dm (const treedbs_ll_t dbs, const int *v,
+TreeDBSLLfind_dm (treedbs_ll_t *dbs, const int *v,
                     tree_t prev, tree_t next, int group)
 {
     return TreeDBSLLfop_dm (dbs, v, prev, next, group, false);
 }
 
 
-extern tree_t       TreeDBSLLget (const treedbs_ll_t dbs, const tree_ref_t ref, 
+extern tree_t       TreeDBSLLget (treedbs_ll_t *dbs, const tree_ref_t ref,
                                   int *dst);
 
 typedef struct treedbs_ll_inlined_s {
@@ -173,12 +173,12 @@ typedef struct treedbs_ll_inlined_s {
 } treedbs_ll_inlined_t;
 
 static inline tree_t
-TreeDBSLLdata (const treedbs_ll_t dbs, tree_t data) {
+TreeDBSLLdata (treedbs_ll_t *dbs, tree_t data) {
     return data + ((treedbs_ll_inlined_t *)dbs)->nNodes;
 }
 
 static inline tree_ref_t
-TreeDBSLLindex (const treedbs_ll_t dbs, tree_t data) {
+TreeDBSLLindex (treedbs_ll_t *dbs, tree_t data) {
     int64_t            *d64 = (int64_t *)data;
     treedbs_ll_inlined_t *d = (treedbs_ll_inlined_t *)dbs;
     return d64[!d->indexing];
@@ -187,15 +187,15 @@ TreeDBSLLindex (const treedbs_ll_t dbs, tree_t data) {
 /**
 \brief Free the memory used by a tree dbs.
 */
-extern void         TreeDBSLLfree (treedbs_ll_t dbs);
+extern void         TreeDBSLLfree (treedbs_ll_t *dbs);
 
-extern void         TreeDBSLLcache (treedbs_ll_t dbs, size_t size);
+extern void         TreeDBSLLcache (treedbs_ll_t *dbs, size_t size);
 
 /**
 \brief return internal statistics
 \see stats.h
 \param dbs The dbs
 */
-extern stats_t     *TreeDBSLLstats (treedbs_ll_t dbs);
+extern stats_t     *TreeDBSLLstats (treedbs_ll_t *dbs);
 
 #endif
