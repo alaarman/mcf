@@ -25,46 +25,60 @@ typedef struct seach_s {
     model_t model;
     size_t state_size_int;
 
-    dfs_stack_t *stack;		// stack
-    tree_ll_t *visited;		// visited set
+    dfs_stack_t *stack;        // stack
+    tree_ll_t *visited;        // visited set
     size_t states;
     size_t trans;
     size_t deadlocks;
+
+    int *dst_tree;            // additional space for storing new "trees"
+    int *src_tree;            // pointer to source tree (on stack)
 } search_t;
 
 static inline void
-monitor_progress(search_t *S) {
-	S->states++;
-	if (S->states == progress) {
-		Print("States explored: %zu, transitions: %zu", S->states, S->trans);
-		progress <<= 1; // times 2
-	}
+monitor_progress(search_t *S, size_t count) {
+    S->states++;
+    S->deadlocks += count == 0;
+    if (S->states == progress) {
+        Print("States explored: %zu, transitions: %zu", S->states, S->trans);
+        progress <<= 1; // times 2
+    }
 }
 
 /**
  * Callback processing successors
  */
 void process_cb(void *ctx, transition_info_t *ti, int *dst, int *cpy) {
-	search_t *S = (search_t *) ctx;
+    search_t *S = (search_t *) ctx;
     S->trans++;
-    int res = tree_ll_fop (S->visited, dst, true);
+    //int res = tree_ll_fop (S->visited, dst, true);
+    int res = tree_ll_fop_dm (S->visited, dst, S->src_tree, S->dst_tree,
+                              ti->group, true);
     if (res == DB_ROOTS_FULL || res == DB_LEAFS_FULL)
-    		Abort ("Tree table full, enlarge TABLE_SIZE");
-    if (res == 0) { 						// vector is new
-    		dfs_stack_push (S->stack, dst);	// add vector to the stack
+        Abort ("Tree table full, enlarge TABLE_SIZE");
+    if (res == 0) {                       	   // vector is new
+        dfs_stack_push (S->stack, S->dst_tree); // add !tree! to the stack
     }
 }
-
 
 /**
  * Perform search
  */
-void search(search_t *S){
+void dfs(search_t *S){
     while (dfs_stack_size(S->stack) > 0) {
-		monitor_progress(S);
-        int *cur = dfs_stack_pop(S->stack);
-        size_t count = GBgetTransitionsAll(S->model, cur, process_cb, (void *) S);
-        S->deadlocks += count == 0;
+
+    		// greedy search:
+    		while (dfs_stack_frame_size(S->stack) > 0) {
+            S->src_tree = dfs_stack_top(S->stack);
+            int *src = tree_ll_data(S->visited, S->src_tree);
+            dfs_stack_enter (S->stack);
+            size_t count = GBgetTransitionsAll(S->model, src, process_cb, (void *) S);
+            monitor_progress(S, count);
+        }
+
+        // backtrack:
+		dfs_stack_leave (S->stack);
+		dfs_stack_pop(S->stack);
     }
 }
 
@@ -93,7 +107,7 @@ int main(int argc, const char **argv) {
     GBsetChunkMap (model, simple_table_factory_create());
     pins_model_loader (model, fname);
     if (POR) {
-    		Print("Activating Partial Order Reduction layer");
+            Print("Activating Partial Order Reduction layer");
         model = pins2pins_por(model); // wrap model
     }
 
@@ -104,7 +118,7 @@ int main(int argc, const char **argv) {
     Print("State slots are:");
     Print0("\t");
     for (size_t i = 0 ; i < l; i++)
-    		Print0("%s,", pins_get_state_name(model, i));
+            Print0("%s,", pins_get_state_name(model, i));
     Print(" ");
     Print("There are %zu state labels", pins_get_state_label_count(model));
     Print("State labels are (skipping guards): ");
@@ -119,20 +133,24 @@ int main(int argc, const char **argv) {
     S.model = model;
     S.state_size_int = l;
     S.states = S.trans = S.deadlocks = 0;
-    S.stack = dfs_stack_create(l);
-    S.visited = tree_ll_create_sized (l, TABLE_SIZE, 2, 0, false, false);
+    S.stack = dfs_stack_create(2 * l);        // store trees
+    S.dst_tree = malloc(sizeof(int[2 * l]));
+    matrix_t *m = GBgetDMInfo(model);
+    S.visited = tree_ll_create_dm (l, TABLE_SIZE, 2, m, 0, false, false);
 
-    int *initial = dfs_stack_push(S.stack, NULL); // reserve space
-    GBgetInitialState (model, initial);			 // place initial state on stack
+    int *initial = malloc(sizeof(int[l]));
+    GBgetInitialState (model, initial);             // place initial state on stack
     // add initial state to stack:
-    tree_ll_fop (S.visited, initial, true);
+    tree_ll_fop_dm (S.visited, initial, NULL, S.dst_tree, -1, true);
+    dfs_stack_push (S.stack, S.dst_tree);
 
     // Start search
     rt_timer_t timer = RTcreateTimer();
     RTstartTimer(timer);
-    search(&S);
+    dfs(&S);
     RTstopTimer(timer);
     RTprintTimer(timer, "\nTotal exploration time");
     Print("State space has %zu states, %zu transitions, and %zu deadlocks",
-    		S.states, S.trans,  S.deadlocks);
+          S.states, S.trans,  S.deadlocks);
+    free (initial);
 }
