@@ -19,7 +19,9 @@
 typedef struct dfs_stack dfs_stack_t;
 
 
-
+/**
+ * Create a stack storing (32 bit) int vectors of length "element_size"
+ */
 extern dfs_stack_t *dfs_stack_create(size_t element_size);
 extern void dfs_stack_destroy(dfs_stack_t *stack);
 
