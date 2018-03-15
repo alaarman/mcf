@@ -1,6 +1,6 @@
 // -*- tab-width:4 ; indent-tabs-mode:nil -*-
 
-
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

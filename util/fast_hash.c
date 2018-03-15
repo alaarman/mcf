@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+//#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 
 #undef get16bits
 #if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) \
