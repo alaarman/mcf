@@ -1,6 +1,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 #include "vset/vdom_object.h"
@@ -9,13 +10,13 @@
 #include "util-mc/atomics.h"
 
 #ifdef HAVE_ATERM2_H
-extern struct poptOption atermdd_options[];
+//extern struct poptOption atermdd_options[];
 extern vdom_t vdom_create_list(int n);
 extern vdom_t vdom_create_tree(int n);
 #endif
 
 #ifdef HAVE_BUDDY
-extern struct poptOption buddy_options[];
+//extern struct poptOption buddy_options[];
 extern vdom_t vdom_create_fdd(int n);
 #endif
 
@@ -23,18 +24,18 @@ extern vdom_t vdom_create_fdd(int n);
 extern vdom_t vdom_create_ddd(int n);
 #endif
 
-extern struct poptOption listdd_options[];
+//extern struct poptOption listdd_options[];
 extern vdom_t vdom_create_list_native(int n);
 
-extern struct poptOption listdd64_options[];
+//extern struct poptOption listdd64_options[];
 extern vdom_t vdom_create_list64_native(int n);
 
 #ifdef HAVE_SYLVAN
-extern struct poptOption sylvan_options[];
+//extern struct poptOption sylvan_options[];
 extern vdom_t vdom_create_sylvan(int n);
 extern vdom_t vdom_create_sylvan_from_file(FILE *f);
 
-extern struct poptOption lddmc_options[];
+//extern struct poptOption lddmc_options[];
 extern vdom_t vdom_create_lddmc(int n);
 extern vdom_t vdom_create_lddmc_from_file(FILE *f);
 
@@ -44,32 +45,32 @@ vset_implementation_t vset_default_domain = VSET_ListDD;
 #endif
 
 int vset_cache_diff = 0;
-
-static void vset_popt(poptContext con,
- 		enum poptCallbackReason reason,
-                            const struct poptOption * opt,
-                             const char * arg, void * data){
-	(void)con;
-	switch(reason){
-	case POPT_CALLBACK_REASON_PRE:
-	case POPT_CALLBACK_REASON_POST:
-		Abort("unexpected call to vset_popt");
-	case POPT_CALLBACK_REASON_OPTION:
-		if (!strcmp(opt->longName,"vset")){
-			int res=linear_search((si_map_entry*)data,arg);
-			if (res<0) {
-				Exit(EXIT_FAILURE, "unknown vector set implementation %s",arg);
-			}
-			vset_default_domain=res;
-			return;
-		}
-		if (!strcmp(opt->longName,"vset-cache-diff")) return;
-		Abort("unexpected call to vset_popt");
-	}
-}
-
-
-static si_map_entry vset_table[]={
+//
+//static void vset_popt(poptContext con,
+// 		enum poptCallbackReason reason,
+//                            const struct poptOption * opt,
+//                             const char * arg, void * data){
+//	(void)con;
+//	switch(reason){
+//	case POPT_CALLBACK_REASON_PRE:
+//	case POPT_CALLBACK_REASON_POST:
+//		Abort("unexpected call to vset_popt");
+//	case POPT_CALLBACK_REASON_OPTION:
+//		if (!strcmp(opt->longName,"vset")){
+//			int res=linear_search((si_map_entry*)data,arg);
+//			if (res<0) {
+//				Exit(EXIT_FAILURE, "unknown vector set implementation %s",arg);
+//			}
+//			vset_default_domain=res;
+//			return;
+//		}
+//		if (!strcmp(opt->longName,"vset-cache-diff")) return;
+//		Abort("unexpected call to vset_popt");
+//	}
+//}
+//
+//
+si_map_entry vset_table[]={
 	{"ldd",VSET_ListDD},
 	{"ldd64",VSET_ListDD64},
 #ifdef HAVE_ATERM2_H
@@ -88,62 +89,62 @@ static si_map_entry vset_table[]={
 #endif // HAVE_SYLVAN
 	{NULL,0}
 };
-
-
-struct poptOption vset_options[]={
-    { NULL, 0 , POPT_ARG_CALLBACK , (void*)vset_popt , 0 , (void*)vset_table ,NULL },
-    { "vset" , 0 , POPT_ARG_STRING , NULL , 0 ,
-      "select a vector set implementation from "
-#ifdef HAVE_SYLVAN
-      "Sylvan LDDs, "
-#endif
-      "native ListDD (32-bit or 64-bit), "
-#ifdef HAVE_ATERM2_H
-      "ATermDD with *list* encoding, "
-      "ATermDD with *tree* encoding, "
-#endif
-#ifdef HAVE_BUDDY
-      "BuDDy using the *fdd* feature, "
-#endif
-#if HAVE_DDD_H
-      "DDD, "
-#endif
-#ifdef HAVE_SYLVAN
-      "Sylvan BDDs, "
-#endif
-      "(default: first available)", "<"
-#ifdef HAVE_SYLVAN
-      "lddmc|"
-#endif
-      "ldd|ldd64"
-#ifdef HAVE_ATERM2_H
-      "|list|tree"
-#endif
-#ifdef HAVE_BUDDY
-      "|fdd"
-#endif
-#ifdef HAVE_DDD_H
-      "|ddd"
-#endif
-#ifdef HAVE_SYLVAN
-      "|sylvan"
-#endif
-      ">" },
-    { NULL,0 , POPT_ARG_INCLUDE_TABLE , listdd_options , 0 , "ListDD options" , NULL},
-    { NULL,0 , POPT_ARG_INCLUDE_TABLE , listdd64_options , 0 , "ListDD64 options" , NULL},
-#ifdef HAVE_ATERM2_H
-    { NULL,0 , POPT_ARG_INCLUDE_TABLE , atermdd_options , 0 , "ATermDD options" , NULL},
-#endif
-#ifdef HAVE_BUDDY
-    { NULL,0 , POPT_ARG_INCLUDE_TABLE , buddy_options , 0 , "BuDDy options" , NULL},
-#endif
-#ifdef HAVE_SYLVAN
-	{ NULL,0 , POPT_ARG_INCLUDE_TABLE , sylvan_options , 0 , "Sylvan options" , NULL},
-#endif
-    { "vset-cache-diff", 0, POPT_ARG_INT|POPT_ARGFLAG_SHOW_DEFAULT, &vset_cache_diff , 0 ,
-      "Influences size of operations cache when counting precisely with bignums: cache size = (2log('nodes-to-count') + <diff>)^2", "<diff>"},
-    POPT_TABLEEND
-};
+//
+//
+//struct poptOption vset_options[]={
+//    { NULL, 0 , POPT_ARG_CALLBACK , (void*)vset_popt , 0 , (void*)vset_table ,NULL },
+//    { "vset" , 0 , POPT_ARG_STRING , NULL , 0 ,
+//      "select a vector set implementation from "
+//#ifdef HAVE_SYLVAN
+//      "Sylvan LDDs, "
+//#endif
+//      "native ListDD (32-bit or 64-bit), "
+//#ifdef HAVE_ATERM2_H
+//      "ATermDD with *list* encoding, "
+//      "ATermDD with *tree* encoding, "
+//#endif
+//#ifdef HAVE_BUDDY
+//      "BuDDy using the *fdd* feature, "
+//#endif
+//#if HAVE_DDD_H
+//      "DDD, "
+//#endif
+//#ifdef HAVE_SYLVAN
+//      "Sylvan BDDs, "
+//#endif
+//      "(default: first available)", "<"
+//#ifdef HAVE_SYLVAN
+//      "lddmc|"
+//#endif
+//      "ldd|ldd64"
+//#ifdef HAVE_ATERM2_H
+//      "|list|tree"
+//#endif
+//#ifdef HAVE_BUDDY
+//      "|fdd"
+//#endif
+//#ifdef HAVE_DDD_H
+//      "|ddd"
+//#endif
+//#ifdef HAVE_SYLVAN
+//      "|sylvan"
+//#endif
+//      ">" },
+//    { NULL,0 , POPT_ARG_INCLUDE_TABLE , listdd_options , 0 , "ListDD options" , NULL},
+//    { NULL,0 , POPT_ARG_INCLUDE_TABLE , listdd64_options , 0 , "ListDD64 options" , NULL},
+//#ifdef HAVE_ATERM2_H
+//    { NULL,0 , POPT_ARG_INCLUDE_TABLE , atermdd_options , 0 , "ATermDD options" , NULL},
+//#endif
+//#ifdef HAVE_BUDDY
+//    { NULL,0 , POPT_ARG_INCLUDE_TABLE , buddy_options , 0 , "BuDDy options" , NULL},
+//#endif
+//#ifdef HAVE_SYLVAN
+//	{ NULL,0 , POPT_ARG_INCLUDE_TABLE , sylvan_options , 0 , "Sylvan options" , NULL},
+//#endif
+//    { "vset-cache-diff", 0, POPT_ARG_INT|POPT_ARGFLAG_SHOW_DEFAULT, &vset_cache_diff , 0 ,
+//      "Influences size of operations cache when counting precisely with bignums: cache size = (2log('nodes-to-count') + <diff>)^2", "<diff>"},
+//    POPT_TABLEEND
+//};
 
 vdom_t
 vdom_create_domain(int n, vset_implementation_t impl)

@@ -1,7 +1,8 @@
 #ifndef VECTOR_SET_H
 #define VECTOR_SET_H
 
-#include <popt.h>
+//#include <popt.h>
+#include <stdio.h>
 
 #include <bignum/bignum.h>
 
@@ -14,7 +15,7 @@ sets and relations.
 */
 //@{
 
-extern struct poptOption vset_options[];
+//extern struct poptOption vset_options[];
 
 /**
 \brief Abstract type for a domain.

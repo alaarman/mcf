@@ -36,11 +36,11 @@ static uint32_t fib(uint32_t n){
     return tmp1;
 }
 
-struct poptOption listdd_options[]= {
-    { "ldd32-step", 0, POPT_ARG_INT|POPT_ARGFLAG_SHOW_DEFAULT, &nodes_fib, 0, "set intial step in node size", "<step>"},
-    { "ldd32-cache",0, POPT_ARG_INT|POPT_ARGFLAG_SHOW_DEFAULT, &cache_fib , 0 , "set Fibonacci difference between operation op cache and nodes (may be negative)","<diff>"},
-    POPT_TABLEEND
-};
+//struct poptOption listdd_options[]= {
+//    { "ldd32-step", 0, POPT_ARG_INT|POPT_ARGFLAG_SHOW_DEFAULT, &nodes_fib, 0, "set intial step in node size", "<step>"},
+//    { "ldd32-cache",0, POPT_ARG_INT|POPT_ARGFLAG_SHOW_DEFAULT, &cache_fib , 0 , "set Fibonacci difference between operation op cache and nodes (may be negative)","<diff>"},
+//    POPT_TABLEEND
+//};
 
 static uint32_t free_node=1;
 static uint32_t* unique_table=NULL;
