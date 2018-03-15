@@ -43,6 +43,7 @@ add_subdirectory(vset)
 add_executable(mc
                 mc.c
                 alg/enum-dfs.c alg/enum-dfs.h
+                alg/sym-bfs.c alg/sym-bfs.h
                 pins2pins/por.c pins2pins/por.h
                 loader/loader.c loader/loader.h
                 loader/dve-pins.c loader/dve-pins.h
@@ -50,4 +51,4 @@ add_executable(mc
                 loader/dlopen-pins.c loader/dlopen-pins.h
 )
 
-target_link_libraries(mc pins util-mc pthread ${CMAKE_DL_LIBS})
+target_link_libraries(mc pins util-mc vset pthread ${CMAKE_DL_LIBS})

@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "alg/enum-dfs.h"
+#include "alg/sym-bfs.h"
 #include "loader/loader.h"
 #include "pins/pins.h"
 #include "pins/pins-util.h"
@@ -25,9 +26,12 @@ int main(int argc, const char **argv) {
     // Parse command line options:
     const char *fname = NULL;
     bool    POR = false;
+    bool    SYM = false;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--por") == 0) {
             POR = true;
+        } else if (strcmp(argv[i], "--sym") == 0) {
+        	SYM = true;
         } else if (access(fname, F_OK) == -1) {
             fname = argv[i];
             Print ("Using model in file '%s'", argv[i]);
@@ -62,7 +66,9 @@ int main(int argc, const char **argv) {
             Print0("%s,", pins_get_state_label_name(model, i));
     Print(" ");
 
-    alg_enum_dfs (model);
+    if (SYM) {
+        alg_sym_bfs (model);
+    } else {
+        alg_enum_dfs (model);
+    }
 }
-
-
