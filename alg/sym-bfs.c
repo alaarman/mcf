@@ -25,6 +25,8 @@ typedef struct sym_seach_s {
     vset_t *group_tmp;          // tmp set per group (projected to read vars)
     list_t **r_proj;            // r_proj[i] is a list of READ variables for group i
     list_t **w_proj;            // w_proj[i] is a list of WRITE variables for group i
+
+    long   peak_nodes;          // the largest BDD size encountered (for stats)
 } sym_search_t;
 
 /**
@@ -35,7 +37,7 @@ init_domain(model_t model, sym_search_t *sym) {
     int N = pins_get_state_variable_count(model);
     int K = pins_get_group_count(model);
 
-    sym->domain = vdom_create_domain(N, VSET_LDDmc);
+    sym->domain = vdom_create_domain(N, VSET_Sylvan);
     Assert (vdom_separates_rw(sym->domain), "VSET should support reads /writes");
 
     for (int i = 0; i < dm_ncols(GBgetDMInfo(model)); i++) {
@@ -60,7 +62,7 @@ init_domain(model_t model, sym_search_t *sym) {
 }
 
 static void
-stats_and_progress_report(vset_t current, vset_t visited, int level)
+stats_and_progress_report(sym_search_t *sym, vset_t visited, int level)
 {
     long   n_count;
     double e_count;
@@ -68,6 +70,7 @@ stats_and_progress_report(vset_t current, vset_t visited, int level)
     Print("level %d is finished", level);
     vset_count (visited, &n_count, &e_count);
     Print("visited %d has %.0f states ( %ld nodes )", level, e_count, n_count);
+    sym->peak_nodes = max(sym->peak_nodes, n_count);
 }
 
 typedef struct rel_add_s {
@@ -133,7 +136,7 @@ void search(sym_search_t *sym, vset_t visited) {
     for (int level = 0; !vset_equal(visited, old_vis); level++) {
         vset_copy(old_vis, visited);
 
-        stats_and_progress_report(NULL, visited, level);
+        stats_and_progress_report(sym, visited, level);
 
         for (int i = 0; i < pins_get_group_count(sym->model); i++) {
             expand_group_next(sym, i, visited);
@@ -157,6 +160,7 @@ void alg_sym_bfs(model_t model) {
     size_t l = pins_get_state_variable_count(model);
     sym_search_t sym;
     sym.model = model;
+    sym.peak_nodes = 0;
     init_domain (model, &sym);
 
     int *initial = malloc(sizeof(int[l]));
@@ -183,12 +187,11 @@ void alg_sym_bfs(model_t model) {
     RTstopTimer(timer);
     RTprintTimer(timer, "counting took");
     RTdeleteTimer(timer);
-
     Print(" ");
-    Print("state space has %.0f states, %ld DD nodes", e_count, n_count);
-
+    Print("state space has %.0f states, %ld DD peak nodes (%ld final nodes)",
+          e_count, sym.peak_nodes, n_count);
     Print(" ");
-    size_t tree_m = sizeof(char[16][n_count]);
+    size_t tree_m = sizeof(char[16][sym.peak_nodes]);
     size_t table_m = sizeof(int[l]) * (size_t)e_count;
     Print("DD memory used %zu KB (%.2f%% of %zu KB uncompressed)",
           tree_m / 1024, (double)tree_m/table_m*100, table_m / 1024);
