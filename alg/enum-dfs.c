@@ -108,7 +108,8 @@ void alg_enum_dfs(model_t model) {
     Print(" ");
     size_t tree_m = sizeof(int[2][stats->nodes]);
     size_t table_m = sizeof(int[l]) * S.states;
-    Print("Tree memory used %zu KB (%.2f%% of %zu KB)", tree_m / 1024, (double)tree_m/table_m*100, table_m / 1024);
+    Print("Tree memory used %zu KB (%.2f%% of %zu KB uncompressed)",
+          tree_m / 1024, (double)tree_m/table_m*100, table_m / 1024);
     Print("Compressed size: %.2f B/state", (double)tree_m / S.states);
     free (initial);
 }

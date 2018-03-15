@@ -35,7 +35,7 @@ init_domain(model_t model, sym_search_t *sym) {
     int N = pins_get_state_variable_count(model);
     int K = pins_get_group_count(model);
 
-    sym->domain = vdom_create_domain(N, VSET_Sylvan);
+    sym->domain = vdom_create_domain(N, VSET_LDDmc);
     Assert (vdom_separates_rw(sym->domain), "VSET should support reads /writes");
 
     for (int i = 0; i < dm_ncols(GBgetDMInfo(model)); i++) {
@@ -70,58 +70,65 @@ stats_and_progress_report(vset_t current, vset_t visited, int level)
     Print("visited %d has %.0f states ( %ld nodes )", level, e_count, n_count);
 }
 
-typedef struct group_iterate_s {
-    vset_t          set;           // source set
-    int             group;         // which transition group
-    sym_search_t   *sym;
-} group_iterate_t;
-
-typedef struct group_add_s {
+typedef struct rel_add_s {
     vrel_t              rel;        // target relation
-    int                 *src;       // state vector
-    group_iterate_t     *iterator;
-} group_add_t;
+    int                *src;        // state vector
+} rel_add_t;
 
 static void
-group_add(void *context, transition_info_t *ti, int *dst, int *cpy)
+rel_add_cb(void *context, transition_info_t *ti, int *dst, int *cpy)
 {
-    group_add_t *ctx = (group_add_t *) context;
+    rel_add_t *ctx = (rel_add_t *) context;
     vrel_add_cpy(ctx->rel, ctx->src, dst, cpy);
 }
 
+typedef struct rel_expand_s {
+    int             group;         // which transition group
+    sym_search_t   *sym;
+} rel_expand_t;
+
 static void
-explore_cb(vrel_t rel, void *context, int *src)
+rel_expand_cb(vrel_t rel, void *context, int *src)
 {
-    group_iterate_t *it = (group_iterate_t *) context;
-    group_add_t ctx;
-    ctx.iterator = it;
+    rel_expand_t *expand = (rel_expand_t *) context;
+    model_t model = expand->sym->model;
+
+    rel_add_t ctx;
     ctx.rel = rel;
     ctx.src = src;
-
-    model_t model = it->sym->model;
-    GBgetTransitionsShortR2W (model, it->group, src, group_add, &ctx);
+    GBgetTransitionsShortR2W (model, expand->group, src, rel_add_cb, &ctx);
 }
 
+/**
+ * Learn the transition relation by:
+ * 1. identifying new inputs
+ *    (short vectors not yet in group_exploured[group]),
+ * 2. putting the new short vectors in the relation
+ *    (this is what vrel_update does).
+ * 3. using PINS to compute sucessors for the new short vector
+ *    (see GBgetTransitionsShortR2W call in rel_expand_cb)
+ * 4. completing the paths in the relation DD by addings the short successors
+ *    (see rel_add_cb)
+ */
 static void
 expand_group_next(sym_search_t *sym, int group, vset_t set)
 {
-    group_iterate_t ctx;
-    ctx.group = group;
-    ctx.set = set;
-    ctx.sym = sym;
-
+    vset_clear(sym->group_tmp[group]);
     vset_project_minus(sym->group_tmp[group], set, sym->group_explored[group]);
     vset_union(sym->group_explored[group], sym->group_tmp[group]);
 
-    vrel_update(sym->group_next[group], sym->group_tmp[group], explore_cb, &ctx);
-    vset_clear(sym->group_tmp[group]);
+    rel_expand_t ctx;
+    ctx.group = group;
+    ctx.sym = sym;
+    vrel_update(sym->group_next[group], sym->group_tmp[group], rel_expand_cb, &ctx);
 }
 
 /**
  * Perform search
  */
 void search(sym_search_t *sym, vset_t visited) {
-    vset_t old_vis = vset_create(sym->domain, -1, NULL);
+    vset_t old_vis = vset_create(sym->domain, -1, NULL); // long vectors (all vars)
+    vset_t next_level = vset_create(sym->domain, -1, NULL); // long vectors (all vars)
 
     for (int level = 0; !vset_equal(visited, old_vis); level++) {
         vset_copy(old_vis, visited);
@@ -130,9 +137,13 @@ void search(sym_search_t *sym, vset_t visited) {
 
         for (int i = 0; i < pins_get_group_count(sym->model); i++) {
             expand_group_next(sym, i, visited);
+            vset_next(next_level, visited, sym->group_next[i]);
+            vset_union(visited, next_level);
         }
     }
+
     vset_destroy(old_vis);
+    vset_destroy(next_level);
 }
 
 /**
@@ -151,7 +162,7 @@ void alg_sym_bfs(model_t model) {
     int *initial = malloc(sizeof(int[l]));
     GBgetInitialState (model, initial);             // place initial state on stack
 
-    vset_t visited = vset_create(sym.domain, -1, NULL);
+    vset_t visited = vset_create(sym.domain, -1, NULL); // long vectors (all vars)
     vset_add(visited, initial);
     free (initial);
 
@@ -171,6 +182,16 @@ void alg_sym_bfs(model_t model) {
     vset_count(visited, &n_count, &e_count);
     RTstopTimer(timer);
     RTprintTimer(timer, "counting took");
-    Print("state space has %.0f states, %ld nodes", e_count, n_count);
     RTdeleteTimer(timer);
+
+    Print(" ");
+    Print("state space has %.0f states, %ld DD nodes", e_count, n_count);
+
+    Print(" ");
+    size_t tree_m = sizeof(char[16][n_count]);
+    size_t table_m = sizeof(int[l]) * (size_t)e_count;
+    Print("DD memory used %zu KB (%.2f%% of %zu KB uncompressed)",
+          tree_m / 1024, (double)tree_m/table_m*100, table_m / 1024);
+    Print("Compressed size: %.2f B/state", (double)tree_m / e_count);
+
 }
