@@ -131,6 +131,7 @@ void pins_model_init(model_t m) {
             }
         }
     }
+    GBsetDMInfoMayWrite(m, wm);
     GBsetDMInfoMustWrite(m, wm);
 
     // set the combined matrix
