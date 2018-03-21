@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.7)
 
-set(CMAKE_MACOSX_RPATH 1)
 #set(CMAKE_BUILD_TYPE Debug)
+project(lins) # VERSION 1.4.0)
+set(CMAKE_MACOSX_RPATH 1)
 
 set(CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG}     -fPIC -Wall -DHAVE_SYLVAN -DDEBUG=1 -g -O0")
 set(CMAKE_CPP_FLAGS_DEBUG   "${CMAKE_CPP_FLAGS_DEBUG}   -fPIC -Wall -DDEBUG=1 -g -O0")
@@ -12,13 +13,13 @@ set(CMAKE_CPP_FLAGS_RELEASE "${CMAKE_CPP_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_LD_FLAGS_RELEASE  "${CMAKE_LD_FLAGS_RELEASE}")
 
-ADD_CUSTOM_TARGET (distclean @echo cleaning for source distribution)
+ADD_CUSTOM_TARGET (distclean)
 
 ADD_CUSTOM_COMMAND(
     DEPENDS clean
     COMMENT "distribution clean"
     COMMAND rm
-    ARGS    -rf *.dSYM */*.dSYM Makefile */Makefile */CMakeFiles CMakeFiles CMakeCache.txt */CMakeCache.txt cmake_install.cmake */cmake_install.cmake
+    ARGS    -rf *.dSYM */*.dSYM Makefile */Makefile */CMakeFiles CMakeFiles CMakeCache.txt Makefile */Makefile  */CMakeCache.txt cmake_install.cmake */cmake_install.cmake
     TARGET  distclean
 )
 
@@ -39,6 +40,7 @@ add_subdirectory(ltl2ba)
 add_subdirectory(sylvan)
 add_subdirectory(vset)
 
+set(RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
 add_executable(mc
                 mc.c
