@@ -176,8 +176,6 @@ void search(sym_search_t *sym, vset_t visited) {
       for(int i = 0; i < K; i++){
         // 2. apply learned transition relation on long vectors
         //    using vset_next(tmp, level, group_next[i])
-        //    (a callback needs to be implemented passing the
-        //    relation and the short vector of the source state)
         vset_next(tmpA, level, sym->group_next[i]);
         vset_union(tmpB, tmpA);
       }
