@@ -309,6 +309,23 @@ bool write_matrix(int i, int j) {
     }
 }
 
+bool must_write_matrix(int i, int j) {
+    int proc   = i % N;
+    int action = i / N;
+    switch (action) {
+    case 0: return j == get_slot_index(proc[proc].pc);
+    case 1: return j == get_slot_index(proc[proc].pc) ||
+                   j == get_slot_index(proc[proc].k);
+    case 2: return j == get_slot_index(proc[proc].pc) ||
+                   j == get_slot_index(level[proc]);
+    case 3: return j == get_slot_index(proc[proc].pc) ||
+                   j == get_slot_index(proc[proc].k);
+    case 4: return j == get_slot_index(proc[proc].pc) ||
+                   j == get_slot_index(level[proc]) ;
+    default: assert (false && "Unknown action"); return -1;
+    }
+}
+
 bool read_matrix(int i, int j) {
     int proc   = i % N;
     int action = i / N;

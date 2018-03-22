@@ -42,6 +42,8 @@ int state_label(void* model, int label, int* src);
  * @brief returns whether group i writes to slot j
  */
 bool write_matrix(int i, int j);
+bool must_write_matrix(int i, int j);
+
 
 /**
  * @brief returns whether group i reads from slot j

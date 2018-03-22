@@ -103,15 +103,26 @@ void pins_model_init(model_t m) {
     // set function pointer for the label evaluation function
     GBsetStateLabelLong(m, (get_label_method_t) state_label);
 
-    // create combined matrix
-    matrix_t *cm = malloc(sizeof(matrix_t));
+    // create matrices
+    matrix_t *cm = malloc(sizeof(matrix_t));            //combined
     dm_create(cm, group_count(), state_int_length());
-
-    // set the read dependency matrix
     matrix_t *rm = malloc(sizeof(matrix_t));
     dm_create(rm, group_count(), state_int_length());
+    matrix_t *wm = malloc(sizeof(matrix_t));
+    dm_create(wm, group_count(), state_int_length());
+    matrix_t *mwm = malloc(sizeof(matrix_t));
+    dm_create(mwm, group_count(), state_int_length());
+
+    // set the read/write/must dependency matrix
     for (int i = 0; i < group_count(); i++) {
         for (int j = 0; j < state_int_length(); j++) {
+            if (write_matrix(i,j)) {
+                dm_set(cm, i, j);
+                dm_set(wm, i, j);
+            }
+//            if (must_write_matrix(i,j)) {
+//                dm_set(mwm, i, j);
+//            }
             if (read_matrix(i,j)) {
                 dm_set(cm, i, j);
                 dm_set(rm, i, j);
@@ -119,22 +130,8 @@ void pins_model_init(model_t m) {
         }
     }
     GBsetDMInfoRead(m, rm);
-
-    // set the write dependency matrix
-    matrix_t *wm = malloc(sizeof(matrix_t));
-    dm_create(wm, group_count(), state_int_length());
-    for (int i = 0; i < group_count(); i++) {
-        for (int j = 0; j < state_int_length(); j++) {
-            if (write_matrix(i,j)) {
-                dm_set(cm, i, j);
-                dm_set(wm, i, j);
-            }
-        }
-    }
     GBsetDMInfoMayWrite(m, wm);
-    GBsetDMInfoMustWrite(m, wm);
-
-    // set the combined matrix
+    GBsetDMInfoMustWrite(m, mwm);
     GBsetDMInfo(m, cm);
 
     // set the label dependency matrix
