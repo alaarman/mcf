@@ -316,7 +316,12 @@ bool read_matrix(int i, int j) {
     case 0: return j == get_slot_index(proc[proc].pc) ||
                    j == get_slot_index(level[proc]) ;
     case 1: return j == get_slot_index(proc[proc].pc) ||
-                   j == get_slot_index(level[proc]) ;
+                   j == get_slot_index(level[proc])
+                   ||
+                   j == get_slot_index(last[0]) ||
+                   j == get_slot_index(last[1]) ||
+                   j == get_slot_index(last[2]) ||
+                   j == get_slot_index(last[3]) ;
     case 2: return j == get_slot_index(proc[proc].pc) ||
                    j == get_slot_index(proc[proc].k) ||
                    j == get_slot_index(level[proc]);
