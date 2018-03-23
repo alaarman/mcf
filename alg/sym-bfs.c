@@ -1,8 +1,6 @@
+
 /**
  * An symbolic BFS algorithm
- *
- *
- * Debug the algorithm with report_bdd_size / report_rel_size
  */
 
 #include <stdbool.h>
@@ -17,20 +15,6 @@
 #include "util-mc/tree-ll.h"
 #include "vset/vector_set.h"
 
-/**
- * The DDs and other data structures in sym_search_t will be used to
- * implement symbolic reachability with transition relation learning.
- *
- * The transition relation is learnt by:
- * 1. identifying new inputs
- *    (short vectors not yet in group_explored[group]),
- * 2. putting the new short vectors in the relation
- *    (this is what vrel_update does by calling a callback for all new inputs).
- * 3. using PINS to compute successors for the new short vector
- *    (use GBgetTransitionsShortR2W in the callback of vrel_update!)
- * 4. completing the paths in the relation DD by addings the short successors
- *    (using rel_add)
- */
 
 typedef struct sym_search_s {
     // PINS model
@@ -95,56 +79,99 @@ init_domain(model_t model, sym_search_t *sym) {
     }
 }
 
-void
-report_rel_size(sym_search_t *sym, vrel_t visited, char *name)
+static void
+stats_and_progress_report(sym_search_t *sym, vset_t visited, int level)
 {
     long   n_count;
     double e_count;
-    vrel_count (visited, &n_count, &e_count);
-    Print("%s has %.0f states ( %ld nodes )", name, e_count, n_count);
-}
 
-void
-report_bdd_size(sym_search_t *sym, vset_t visited, char *name)
-{
-    long   n_count;
-    double e_count;
+    Print("level %d is finished", level);
     vset_count (visited, &n_count, &e_count);
-    Print("%s has %.0f states ( %ld nodes )", name, e_count, n_count);
-    sym->peak_nodes = max(sym->peak_nodes, n_count); // maintain stats
+    Print("visited %d has %.0f states ( %ld nodes )", level, e_count, n_count);
+    sym->peak_nodes = max(sym->peak_nodes, n_count);
 }
 
-// callbacks and other helper functions
-struct TransitionCtx{
-  vrel_t rel;
-  int *src;
-};
+typedef struct rel_add_s {
+    vrel_t              rel;        // target relation
+    int                *src;        // state vector
+} rel_add_t;
 
-void searchTransition(void *context, transition_info_t *transition_info,
-                      int *dst, int *cpy){
-  struct TransitionCtx *ctx = context;
-  vrel_t rel = ctx->rel;
-  vrel_add_cpy(rel, ctx->src, dst, cpy);
+static void
+rel_add_cb(void *context, transition_info_t *ti, int *dst, int *cpy)
+{
+    rel_add_t *ctx = (rel_add_t *) context;
+    vrel_add_cpy(ctx->rel, ctx->src, dst, cpy);
 }
 
-struct AddStateCtx{
-  sym_search_t *sym;
-  int group;
-};
+typedef struct rel_expand_s {
+    int             group;         // which transition group
+    sym_search_t   *sym;
+} rel_expand_t;
 
-void searchAddState(vrel_t rel, void *context, int *e){
-  // Add transitions from [e] to a set [set].
-  struct AddStateCtx *ctx = context;
-  sym_search_t *sym = ctx->sym;
+static void
+rel_expand_cb(vrel_t rel, void *context, int *src)
+{
+    rel_expand_t *expand = (rel_expand_t *) context;
+    model_t model = expand->sym->model;
 
-  GBgetTransitionsShortR2W(sym->model, ctx->group, e,
-                           searchTransition, &(struct TransitionCtx){rel, e});
+    rel_add_t ctx;
+    ctx.rel = rel;
+    ctx.src = src;
+    GBgetTransitionsShortR2W (model, expand->group, src, rel_add_cb, &ctx);
+}
+
+/**
+ * Learn the transition relation by:
+ * 1. identifying new inputs
+ *    (short vectors not yet in group_exploured[group]),
+ * 2. putting the new short vectors in the relation
+ *    (this is what vrel_update does).
+ * 3. using PINS to compute sucessors for the new short vector
+ *    (see GBgetTransitionsShortR2W call in rel_expand_cb)
+ * 4. completing the paths in the relation DD by addings the short successors
+ *    (see rel_add_cb)
+ */
+static void
+expand_group_next(sym_search_t *sym, int group, vset_t set)
+{
+    vset_clear(sym->group_tmp[group]);
+    vset_project_minus(sym->group_tmp[group], set, sym->group_explored[group]);
+    vset_union(sym->group_explored[group], sym->group_tmp[group]);
+
+    rel_expand_t ctx;
+    ctx.group = group;
+    ctx.sym = sym;
+    vrel_update(sym->group_next[group], sym->group_tmp[group], rel_expand_cb, &ctx);
 }
 
 /**
  * Perform search
  */
 void search(sym_search_t *sym, vset_t visited) {
+    vset_t old_vis = vset_create(sym->domain, -1, NULL); // long vectors (all vars)
+    vset_t next_level = vset_create(sym->domain, -1, NULL); // long vectors (all vars)
+
+    for (int level = 0; !vset_equal(visited, old_vis); level++) {
+        vset_copy(old_vis, visited);
+
+        stats_and_progress_report(sym, visited, level);
+
+        for (int i = 0; i < pins_get_group_count(sym->model); i++) {
+            expand_group_next(sym, i, visited);
+            vset_next(next_level, visited, sym->group_next[i]);
+            vset_union(visited, next_level);
+        }
+    }
+
+    vset_destroy(old_vis);
+    vset_destroy(next_level);
+}
+
+
+/**
+ * Perform search
+ */
+static void search2(sym_search_t *sym, vset_t visited) {
     int K = pins_get_group_count(sym->model);
 
     // long vectors (all vars)
@@ -155,47 +182,48 @@ void search(sym_search_t *sym, vset_t visited) {
 
     int count = 0;
     while(!vset_is_empty(level)){
-      report_bdd_size(sym, level, "level");
+        report_bdd_size(sym, level, "level");
 
-      for(int i = 0; i < K; i++){
-        // 0. implement relation learning per group i by projecting
-        //    the DD level using vset_project(group_tmp[i], level)
-        vset_project(sym->group_tmp[i], level);
-        vset_minus(sym->group_tmp[i], sym->group_explored[i]);
+        for(int i = 0; i < K; i++){
+            // 0. implement relation learning per group i by projecting
+            //    the DD level using vset_project(group_tmp[i], level)
+            vset_project(sym->group_tmp[i], level);
+            vset_minus(sym->group_tmp[i], sym->group_explored[i]);
 
-        // 1. implement relation learning per group i using
-        //    vrel_update(group_next[i], group_tmp[i], ...)
-        //    (a callback needs to be implemented passing the group and sym)
-        vrel_update(sym->group_next[i], sym->group_tmp[i],
-                    searchAddState, &(struct AddStateCtx){sym, i});
+            // 1. implement relation learning per group i using
+            //    vrel_update(group_next[i], group_tmp[i], ...)
+            //    (a callback needs to be implemented passing the group and sym)
+            vrel_update(sym->group_next[i], sym->group_tmp[i],
+                        searchAddState, &(struct AddStateCtx){sym, i});
 
-        vset_union(sym->group_explored[i], sym->group_tmp[i]);
-      }
+            vset_union(sym->group_explored[i], sym->group_tmp[i]);
+        }
 
-      vset_clear(tmpB);
-      for(int i = 0; i < K; i++){
-        // 2. apply learned transition relation on long vectors
-        //    using vset_next(tmp, level, group_next[i])
-        vset_next(tmpA, level, sym->group_next[i]);
-        vset_union(tmpB, tmpA);
-      }
+        vset_clear(tmpB);
+        for(int i = 0; i < K; i++){
+            // 2. apply learned transition relation on long vectors
+            //    using vset_next(tmp, level, group_next[i])
+            vset_next(tmpA, level, sym->group_next[i]);
+            vset_union(tmpB, tmpA);
+        }
 
-      // 4. Combine contents of level, visited, tmp, etc using
-      //    vset_union, vset_minus, vset_clear, vset_copy, etc
-      vset_copy(level, tmpB);
-      vset_minus(level, visited);
+        // 4. Combine contents of level, visited, tmp, etc using
+        //    vset_union, vset_minus, vset_clear, vset_copy, etc
+        vset_copy(level, tmpB);
+        vset_minus(level, visited);
 
-      vset_union(visited, tmpB);
+        vset_union(visited, tmpB);
 
-      Print("level %d is finished", count++);
-      report_bdd_size(sym, visited, "visited");
-      Print("---");
+        Print("level %d is finished", count++);
+        report_bdd_size(sym, visited, "visited");
+        Print("---");
     }
 
     vset_destroy(level);
     vset_destroy(tmpA);
     vset_destroy(tmpB);
 }
+
 
 /**
  * Load model & Setup the search
@@ -212,12 +240,9 @@ void alg_sym_bfs(model_t model) {
     init_domain (model, &sym);
 
     int *initial = malloc(sizeof(int[l]));
+    GBgetInitialState (model, initial);             // place initial state on stack
 
-    // place initial state on stack
-    GBgetInitialState (model, initial);
-
-    // long vectors (all vars)
-    vset_t visited = vset_create(sym.domain, -1, NULL);
+    vset_t visited = vset_create(sym.domain, -1, NULL); // long vectors (all vars)
     vset_add(visited, initial);
     free (initial);
 
