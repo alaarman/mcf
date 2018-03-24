@@ -49,29 +49,39 @@ init_domain(model_t model, sym_search_t *sym) {
     int N = pins_get_state_variable_count(model);
     int K = pins_get_group_count(model);
 
-    sym->domain = vdom_create_domain(N, VSET_Sylvan);
-    Assert(vdom_separates_rw(sym->domain), "VSET should support reads/writes");
+    sym->domain = vdom_create_domain(N, VSET_LDDmc);
 
     for (int i = 0; i < dm_ncols(GBgetDMInfo(model)); i++) {
         vdom_set_name(sym->domain, i, pins_get_state_name(model, i));
     }
 
     sym->group_next     = (vrel_t *)RTmalloc(K * sizeof(vrel_t));
-
     sym->group_explored = (vset_t *)RTmalloc(K * sizeof(vset_t));
     sym->group_tmp      = (vset_t *)RTmalloc(K * sizeof(vset_t));
 
-    matrix_t *read_matrix = GBgetDMInfoRead(model);
-    matrix_t *write_matrix = GBgetDMInfoMayWrite(model);
-    sym->r_proj = (list_t **) dm_rows_to_idx_table(read_matrix);
-    sym->w_proj = (list_t **) dm_rows_to_idx_table(write_matrix);
+    if (false && vdom_separates_rw(sym->domain)) {
+        matrix_t *read_matrix = GBgetDMInfoRead(model);
+        matrix_t *write_matrix = GBgetDMInfoMayWrite(model);
+        sym->r_proj = (list_t **) dm_rows_to_idx_table(read_matrix);
+        sym->w_proj = (list_t **) dm_rows_to_idx_table(write_matrix);
+    } else {
+        matrix_t *m = GBgetDMInfo(model);
+        sym->r_proj = (list_t **) dm_rows_to_idx_table(m);
+        sym->w_proj = sym->r_proj;
+    }
 
     for (int i = 0; i < K; i++) {
-        sym->group_next[i] = vrel_create_rw(sym->domain,
-                                            sym->r_proj[i]->count,
-                                            sym->r_proj[i]->data,
-                                            sym->w_proj[i]->count,
-                                            sym->w_proj[i]->data);
+        if (vdom_separates_rw(sym->domain)) {
+            sym->group_next[i] = vrel_create_rw(sym->domain,
+                                                sym->r_proj[i]->count,
+                                                sym->r_proj[i]->data,
+                                                sym->w_proj[i]->count,
+                                                sym->w_proj[i]->data);
+        } else {
+            sym->group_next[i] = vrel_create(sym->domain,
+                                             sym->r_proj[i]->count,
+                                             sym->r_proj[i]->data);
+        }
         sym->group_explored[i] = vset_create(sym->domain, sym->r_proj[i]->count,
                                              sym->r_proj[i]->data);
         sym->group_tmp[i] = vset_create(sym->domain, sym->r_proj[i]->count,
@@ -80,15 +90,19 @@ init_domain(model_t model, sym_search_t *sym) {
 }
 
 static void
-stats_and_progress_report(sym_search_t *sym, vset_t visited, int level)
+stats_count_and_progress_report(sym_search_t *sym, int level,
+                                vset_t V, vset_t L)
 {
-    long   n_count;
-    double e_count;
+    long   V_nodes;
+    double V_states;
+    vset_count (V, &V_nodes, &V_states);
+    long   L_nodes;
+    double L_states;
+    vset_count (L, &L_nodes, &L_states);
 
-    Print("level %d is finished", level);
-    vset_count (visited, &n_count, &e_count);
-    Print("visited %d has %.0f states ( %ld nodes )", level, e_count, n_count);
-    sym->peak_nodes = max(sym->peak_nodes, n_count);
+    Print("Level %d has %.0f states, visited %.0f (%ld nodes)",
+              level, L_states, V_states, V_nodes + L_nodes);
+    sym->peak_nodes = max(sym->peak_nodes, V_nodes + L_nodes);
 }
 
 typedef struct rel_add_s {
@@ -100,7 +114,7 @@ static void
 rel_add_cb(void *context, transition_info_t *ti, int *dst, int *cpy)
 {
     rel_add_t *ctx = (rel_add_t *) context;
-    vrel_add_cpy(ctx->rel, ctx->src, dst, cpy);
+    vrel_add(ctx->rel, ctx->src, dst);
 }
 
 typedef struct rel_expand_s {
@@ -117,7 +131,7 @@ rel_expand_cb(vrel_t rel, void *context, int *src)
     rel_add_t ctx;
     ctx.rel = rel;
     ctx.src = src;
-    GBgetTransitionsShortR2W (model, expand->group, src, rel_add_cb, &ctx);
+    GBgetTransitionsShort (model, expand->group, src, rel_add_cb, &ctx);
 }
 
 /**
@@ -132,12 +146,8 @@ rel_expand_cb(vrel_t rel, void *context, int *src)
  *    (see rel_add_cb)
  */
 static void
-expand_group_next(sym_search_t *sym, int group, vset_t set)
+expand_group_next(sym_search_t *sym, int group)
 {
-    vset_clear(sym->group_tmp[group]);
-    vset_project_minus(sym->group_tmp[group], set, sym->group_explored[group]);
-    vset_union(sym->group_explored[group], sym->group_tmp[group]);
-
     rel_expand_t ctx;
     ctx.group = group;
     ctx.sym = sym;
@@ -151,16 +161,22 @@ void search(sym_search_t *sym, vset_t visited) {
     vset_t old_vis = vset_create(sym->domain, -1, NULL); // long vectors (all vars)
     vset_t next_level = vset_create(sym->domain, -1, NULL); // long vectors (all vars)
 
-    for (int level = 0; !vset_equal(visited, old_vis); level++) {
+    for (int level = 1; !vset_equal(visited, old_vis); level++) {
         vset_copy(old_vis, visited);
 
-        stats_and_progress_report(sym, visited, level);
+        for (int i = 0; i < pins_get_group_count(sym->model); i++) {
+            vset_clear(sym->group_tmp[i]);
+            vset_project_minus(sym->group_tmp[i], visited, sym->group_explored[i]);
+            vset_union(sym->group_explored[i], sym->group_tmp[i]);
+
+            expand_group_next(sym, i);
+        }
 
         for (int i = 0; i < pins_get_group_count(sym->model); i++) {
-            expand_group_next(sym, i, visited);
-            vset_next(next_level, visited, sym->group_next[i]);
-            vset_union(visited, next_level);
+            vset_next_union(visited, visited, sym->group_next[i], visited);
         }
+
+        stats_count_and_progress_report(sym, level, visited, next_level);
     }
 
     vset_destroy(old_vis);
@@ -171,7 +187,7 @@ void search(sym_search_t *sym, vset_t visited) {
 /**
  * Perform search
  */
-static void search2(sym_search_t *sym, vset_t visited) {
+void search2(sym_search_t *sym, vset_t visited) {
     int K = pins_get_group_count(sym->model);
 
     // long vectors (all vars)
@@ -182,7 +198,6 @@ static void search2(sym_search_t *sym, vset_t visited) {
 
     int count = 0;
     while(!vset_is_empty(level)){
-        report_bdd_size(sym, level, "level");
 
         for(int i = 0; i < K; i++){
             // 0. implement relation learning per group i by projecting
@@ -193,8 +208,7 @@ static void search2(sym_search_t *sym, vset_t visited) {
             // 1. implement relation learning per group i using
             //    vrel_update(group_next[i], group_tmp[i], ...)
             //    (a callback needs to be implemented passing the group and sym)
-            vrel_update(sym->group_next[i], sym->group_tmp[i],
-                        searchAddState, &(struct AddStateCtx){sym, i});
+            expand_group_next(sym, i);
 
             vset_union(sym->group_explored[i], sym->group_tmp[i]);
         }
@@ -214,9 +228,7 @@ static void search2(sym_search_t *sym, vset_t visited) {
 
         vset_union(visited, tmpB);
 
-        Print("level %d is finished", count++);
-        report_bdd_size(sym, visited, "visited");
-        Print("---");
+        stats_count_and_progress_report(sym, ++count, visited, level);
     }
 
     vset_destroy(level);
