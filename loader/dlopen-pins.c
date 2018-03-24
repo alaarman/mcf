@@ -30,7 +30,8 @@ void DLloadModel(model_t model,const char*name){
         init(1,argv);
     }
     
-    pins_model_init_proc model_init=RTtrydlsym(dlHandle,"pins_model_init");
+    pins_model_init_proc model_init = RTtrydlsym(dlHandle,"pins_model_init");
+
     if (model_init!=NULL) {
         model_init(model);
     } else {

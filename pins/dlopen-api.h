@@ -32,20 +32,6 @@ extern void init(int argc,char* argv[]);
 
 
 /**
- Type of a single loader record;
- */
-typedef struct loader_record {
-    const char *extension; //< extension;
-    pins_loader_t loader;  //< loader function, see pins.h;
-} loader_record_t;
-/**
-\brief Array of loader records. Required for language module plugins.
- */
-extern struct loader_record pins_loaders[];
-
-
-
-/**
 \brief Type of a model initialization function.
 */
 typedef void (*pins_model_init_proc)(model_t model);
