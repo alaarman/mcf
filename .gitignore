@@ -13,5 +13,8 @@ mc
 *.Plo
 *.Tpo
 *.lo
+*.o
+*.out
+*.dve2C
 cmake_install.cmake
-*.spins*
+*.spins
