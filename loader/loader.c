@@ -2,6 +2,7 @@
 #include <loader/loader.h>
 #include <loader/dlopen-pins.h>
 #include <loader/dve-pins.h>
+#include <loader/pnml-pins.h>
 #include <loader/prom-pins.h>
 #include <pins/pins.h>
 #include <pins/ltsmin-standard.h>
@@ -16,6 +17,7 @@ pins_model_loader (model_t model, const char *name)
     ++extension;
     if (strncmp(extension, "dve", 3) == 0) {
         DVE2loadModel(model, name);
+
     } else if (strcmp(extension, "spins") == 0) {
         PromLoadModel(model, name);
     } else if (strcmp(extension, "pm") == 0) {
@@ -26,12 +28,21 @@ pins_model_loader (model_t model, const char *name)
         PromLoadModel(model, name);
     } else if (strcmp(extension, "pr") == 0) {
         PromLoadModel(model, name);
+    } else if (strcmp(extension, "prm") == 0) {
+        PromLoadModel(model, name);
     } else if (strcmp(extension, "promela") == 0) {
         PromLoadModel(model, name);
+
     } else if (strcmp(extension, "dylib") == 0) {
         DLloadModel(model, name);
     } else if (strcmp(extension, "so") == 0) {
         DLloadModel(model, name);
+
+    } else if (strcmp(extension, "pnml") == 0) {
+        PNMLloadModel(model, name);
+    } else if (strcmp(extension, "andl") == 0) {
+        ANDLloadModel(model, name);
+
     } else {
         Print("No loader for extension .%s", extension);
         exit(1);
