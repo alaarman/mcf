@@ -32,6 +32,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 add_subdirectory(examples)
 add_subdirectory(bignum)
 add_subdirectory(util)
+add_subdirectory(andl)
 add_subdirectory(dm)
 add_subdirectory(util-mc)
 add_subdirectory(pins)
@@ -43,15 +44,22 @@ add_subdirectory(vset)
 
 set(RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
+find_package(LibXml2 REQUIRED)
+
+include_directories(${LIBXML2_INCLUDE_DIR})
+
 add_executable(mc
                 mc.c
                 alg/enum-dfs.c alg/enum-dfs.h
                 alg/sym-bfs.c alg/sym-bfs.h
                 pins2pins/por.c pins2pins/por.h
-                loader/loader.c loader/loader.h
                 loader/dve-pins.c loader/dve-pins.h
+                loader/loader.c loader/loader.h
+                loader/pnml-pins.c loader/pnml-pins.h
                 loader/prom-pins.c loader/prom-pins.h
                 loader/dlopen-pins.c loader/dlopen-pins.h
 )
 
-target_link_libraries(mc pins util-mc vset pthread ${CMAKE_DL_LIBS})
+target_compile_definitions(mc ${LIBXML2_DEFINITIONS} PRIVATE)
+
+target_link_libraries(mc pins util-mc vset andl ${LIBXML2_LIBRARIES} pthread ${CMAKE_DL_LIBS}) 
