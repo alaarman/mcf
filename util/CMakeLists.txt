@@ -17,5 +17,7 @@ add_library(util STATIC
         simplemap.h simplemap.c
         string-map.h string-map.c
         stringindex.h stringindex.c
+        sort_r.h
         tables.h tables.c
+        treedbs.h treedbs.c
         util.h)
