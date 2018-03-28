@@ -146,7 +146,7 @@ get_successor_short(void *model, int t, int *in, TransitionCB cb, void *arg)
 {
     pn_context_t *pn_context = GBgetContext(model);
 
-    Assert(pn_context->has_safe_places, "get_successor_short not compatible with safe places");
+    Assert(!pn_context->has_safe_places, "get_successor_short not compatible with safe places");
 
     const int num_writes = dm_ones_in_row(GBgetDMInfoMustWrite(model), t);
 
@@ -250,7 +250,7 @@ get_update_short(void *model, int t, int *in, void
 {
     pn_context_t *pn_context = GBgetContext(model);
 
-    Assert(pn_context->has_safe_places, "get_update_short not compatible with safe places");
+    Assert(!pn_context->has_safe_places, "get_update_short not compatible with safe places");
 
     const int num_writes = dm_ones_in_row(GBgetDMInfoMustWrite(model), t);
 
