@@ -136,7 +136,7 @@ lts_type_t lts_type_permute(lts_type_t t0,int *pi){
     return t;
 }
 
-void lts_type_printf(void* l, lts_type_t t){
+void lts_type_printf(lts_type_t t){
 	Print("The state labels are:\n");
 	for(int i=0;i<t->state_label_count;i++){
 	    Print("%4d: %s:%s\n",i,

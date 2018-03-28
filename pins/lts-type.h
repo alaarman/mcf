@@ -96,7 +96,7 @@ extern lts_type_t lts_type_permute(lts_type_t t,int *pi);
 extern void lts_type_destroy(lts_type_t *t);
 
 /// Print the lts type to the output stream;
-extern void lts_type_printf(void* l, lts_type_t t);
+extern void lts_type_printf(lts_type_t t);
 
 /**
  * Set the length of the state vector in the specified LTS structure
