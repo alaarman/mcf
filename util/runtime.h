@@ -1,6 +1,6 @@
 // -*- tab-width:4 ; indent-tabs-mode:nil -*-
-#ifndef HRE_RUNTIME_H
-#define HRE_RUNTIME_H
+#ifndef UTIL_RUNTIME_H
+#define UTIL_RUNTIME_H
 
 #include <unistd.h>
 
