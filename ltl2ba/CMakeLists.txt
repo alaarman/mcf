@@ -18,7 +18,7 @@ add_library(buchi STATIC
 			ltl2ba.h
 )
 
-add_executable(ltl2ba
+add_executable(ltl2ba EXCLUDE_FROM_ALL
                 main.c ltl2ba.h
 )
 

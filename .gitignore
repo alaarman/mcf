@@ -22,3 +22,4 @@ andl/andl-lexer.c
 andl/andl-lexer.h
 andl/andl-parser.c
 andl/andl-parser.h
+ltl2ba/ltl2ba
