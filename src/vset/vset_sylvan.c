@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 #include <alloca.h>
 
 #include <vset/vdom_object.h>

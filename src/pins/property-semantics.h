@@ -12,7 +12,7 @@
 
 #include <ltsmin-lib/ltsmin-tl.h>
 #include <ltsmin-lib/ltsmin-parse-env.h>
-#include <pins/ltsmin-standard.h>
+#include <ltsmin-lib/ltsmin-standard.h>
 #include <pins/pins.h>
 #include <pins/pins-util.h>
 #include <util/util.h>

@@ -23,9 +23,11 @@
 
 #include <dm/dm.h>
 #include <pins/pins.h>
-#include <pins/ltsmin-standard.h>
+#include <ltsmin-lib/ltsmin-standard.h>
 #include <pins/pins-util.h>
+#include <pins/property-semantics.h>
 #include <pins2pins/ltl.h>
+#include <pins2pins/por.h>
 #include <util/runtime.h>
 #include <util/util.h>
 
@@ -35,7 +37,6 @@
 
 uint32_t                HOA_ACCEPTING_SET = 0;
 static char            *ltl_file = NULL;
-static const char      *ltl_semantics_name = "none";
 pins_buchi_type_t       PINS_BUCHI_TYPE = PINS_BUCHI_TYPE_BA;
 
 static const int        TEXTBOOK_INIT = (1UL << 30);
@@ -203,6 +204,55 @@ ltl_textbook_all (model_t self, int *src, TransitionCB cb, void *user_context)
     }
 }
 
+/* NOTE: this is hack around non-thread-safe ltl2ba
+ * In multi-process environment, all processes create their own buchi,
+ * which is what we want anyway, because ltsmin_ltl2ba uses strdup.
+ */
+static ltsmin_buchi_t *
+init_buchi(model_t model, const char *ltl_file)
+{
+    Print( "LTL layer: formula: %s", ltl_file);
+    ltsmin_parse_env_t env = LTSminParseEnvCreate();
+    ltsmin_expr_t ltl = ltl_parse_file (ltl_file, env, GBgetLTStype(model));
+    struct LTL_info LTL_info = {0, 0};
+    check_LTL(ltl, env, &LTL_info);
+    if (LTL_info.has_X && PINS_POR) {
+        const char* ex = LTSminPrintExpr(ltl, env);
+        Abort("The neXt operator is not allowed in "
+                "combination with --por: %s", ex);
+    }
+
+    ltsmin_expr_t notltl = LTSminExpr(UNARY_OP, LTL_NOT, 0, ltl, NULL);
+
+    ltsmin_buchi_t *ba;
+#ifdef HAVE_SPOT
+    if (PINS_BUCHI_TYPE == PINS_BUCHI_TYPE_TGBA ||
+        PINS_BUCHI_TYPE == PINS_BUCHI_TYPE_SPOTBA) {
+        ltsmin_ltl2spot(notltl, PINS_BUCHI_TYPE == PINS_BUCHI_TYPE_TGBA, env);
+        ba = ltsmin_hoa_buchi(env);
+    } else {
+#endif
+//        HREassert(PINS_BUCHI_TYPE == PINS_BUCHI_TYPE_BA,
+//            "Buchi type %s is not possible without Spot", buchi_type);
+        ltsmin_ltl2ba(notltl);
+        ba = ltsmin_buchi();
+#ifdef HAVE_SPOT
+    }
+#endif
+
+    if (ba == NULL) {
+        Print("Empty buchi automaton.");
+        Exit(LTSMIN_EXIT_SUCCESS, "The property is TRUE.");
+    } else {
+        if (ba->predicate_count > 30) {
+            Abort("more than 30 predicates in buchi automaton are currently not supported");
+        }
+        ba->env = env;
+        print_ltsmin_buchi(ba, env);
+    }
+
+    return ba;
+}
 
 /**
  *
@@ -222,7 +272,7 @@ GBaddLTL (model_t model)
                lts_type_get_state_label_name(ltstype, old_idx));
     }
 
-    ltsmin_buchi_t *ba = init_ltsmin_buchi(model, ltl_file);
+    ltsmin_buchi_t *ba = init_buchi(model, ltl_file);
 
     model_t         ltlmodel = GBcreateBase();
     ltl_context_t *ctx = RTmalloc(sizeof *ctx);
@@ -440,7 +490,7 @@ GBaddLTL (model_t model)
 
     GBsetInitialState (ltlmodel, s0);
 
-    GBsetExit(ltlmodel, ltl_exit);
+    GBsetExit(ltlmodel, (ExitCB) ltl_exit);
 
     ctx->len = new_len;
     ctx->old_groups = groups;

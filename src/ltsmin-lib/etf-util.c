@@ -7,7 +7,7 @@
 #include <util/stringindex.h>
 #include <ltsmin-lib/etf-internal.h>
 #include <ltsmin-lib/etf-util.h>
-#include <pins/ltsmin-standard.h>
+#include <ltsmin-lib/ltsmin-standard.h>
 #include <util/dynamic-array.h>
 #include <util/util.h>
 #include <util/runtime.h>

@@ -33,6 +33,7 @@ add_library(syntax
 	ltsmin-buchi.h
 	ltsmin-parse-env.h
 	ltsmin-syntax.c ltsmin-syntax.h
+    ltsmin-standard.h
 	ltsmin-tl.c ltsmin-tl.h
 	ltsmin-type-system.c ltsmin-type-system.h
     ${LEMON_ltsmin-grammar_OUTPUTS}
@@ -62,10 +63,8 @@ set(CMAKE_CPP_FLAGS_RELEASE "${CMAKE_CPP_FLAGS_RELEASE} ${LTL2BA_FLAGS}")
 #set(CMAKE_LD_FLAGS_RELEASE  "${CMAKE_LD_FLAGS_RELEASE}  -lspot")
 #endif 
 
+target_link_libraries(syntax dm util buchi z)
 
-target_link_libraries(syntax dm pins util buchi z)
+add_dependencies(syntax lemon)
 
-
-
-
-
+add_dependencies(mucalc lemon)

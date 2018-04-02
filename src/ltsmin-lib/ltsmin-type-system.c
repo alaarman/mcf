@@ -4,7 +4,7 @@
 #include <ltsmin-lib/lts-type.h>
 #include <ltsmin-lib/ltsmin-tl.h>
 #include <ltsmin-lib/ltsmin-type-system.h>
-#include <pins/ltsmin-standard.h>
+#include <ltsmin-lib/ltsmin-standard.h>
 #include <util/runtime.h>
 #include <util/util.h>
 

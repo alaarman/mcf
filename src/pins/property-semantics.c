@@ -7,13 +7,13 @@
 #include <stdbool.h>
 
 #include <ltsmin-lib/ltsmin-type-system.h>
-#include <pins/ltsmin-standard.h>
+#include <ltsmin-lib/ltsmin-standard.h>
 #include <pins/property-semantics.h>
 #include <pins/pins-util.h>
+#include <pins2pins/por.h>
 #include <util/chunk_support.h>
 #include <util/unix.h>
 
-#define PINS_POR 0
 
 
 #define ENUM_VALUE_NOT_FOUND\

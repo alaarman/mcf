@@ -32,6 +32,8 @@
  *
  */
 
+#define PINS_POR 0
+
 
 extern model_t pins2pins_por(model_t model);
 

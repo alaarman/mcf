@@ -45,7 +45,7 @@
 #include <ltsmin-lib/ltsmin-tl.h>
 #include <ltsmin-lib/ltsmin-buchi.h>
 
-#include <pins/ltsmin-standard.h>
+#include <ltsmin-lib/ltsmin-standard.h>
 #include <pins2pins/ltl.h>
 
 #include <util/runtime.h>
@@ -425,11 +425,11 @@ check_LTL(ltsmin_expr_t e, ltsmin_parse_env_t env, struct LTL_info* info)
 }
 
 ltsmin_buchi_t *
-init_ltsmin_buchi(model_t model, const char *ltl_file, bool negate)
+init_ltsmin_buchi(lts_type_t ltstype, const char *ltl_file, bool negate)
 {
     Print("LTL layer: formula: %s", ltl_file);
     ltsmin_parse_env_t env = LTSminParseEnvCreate();
-    ltsmin_expr_t ltl = ltl_parse_file (ltl_file, env, GBgetLTStype(model));
+    ltsmin_expr_t ltl = ltl_parse_file (ltl_file, env, ltstype);
     LTL_info_t LTL_info = {0, 0};
     check_LTL(ltl, env, &LTL_info);
 
@@ -464,7 +464,7 @@ init_ltsmin_buchi(model_t model, const char *ltl_file, bool negate)
 }
 
 void
-ltl_exit (model_t model)
+ltl_exit (void *model)
 {
 #ifdef HAVE_SPOT
     ltsmin_hoa_destroy();

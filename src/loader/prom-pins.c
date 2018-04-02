@@ -8,10 +8,11 @@
 
 #include "dm/dm.h"
 #include "loader/prom-pins.h"
-#include "pins/ltsmin-standard.h"
+#include "ltsmin-lib/ltsmin-standard.h"
 #include "pins/pins-util.h"
 #include "util/chunk_support.h"
 #include "util/runtime.h"
+#include "util/unix.h"
 #include "util/util.h"
 
 static const char* ACCEPTING_STATE_LABEL_NAME       = "accept_";

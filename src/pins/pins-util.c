@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "dm/dm.h"
-#include "pins/ltsmin-standard.h"
+#include "ltsmin-lib/ltsmin-standard.h"
 #include "pins/pins-util.h"
 #include "util/runtime.h"
 #include "util/stringindex.h"

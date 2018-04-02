@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 2.7)
 
 
-include_directories(../sylvan ..)
+include_directories(../../third-party/sylvan ..)
 
 add_library(vset STATIC
         vector_set.c vector_set.h vdom_object.h

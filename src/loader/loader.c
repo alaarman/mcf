@@ -5,7 +5,7 @@
 #include <loader/pnml-pins.h>
 #include <loader/prom-pins.h>
 #include <pins/pins.h>
-#include <pins/ltsmin-standard.h>
+#include <ltsmin-lib/ltsmin-standard.h>
 #include <util/util.h>
 
 

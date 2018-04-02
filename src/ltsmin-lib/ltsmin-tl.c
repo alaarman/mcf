@@ -6,7 +6,7 @@
 #include <ltsmin-lib/ltsmin-lexer.h>
 #include <ltsmin-lib/ltsmin-tl.h>
 #include <ltsmin-lib/ltsmin-type-system.h>
-#include <pins/ltsmin-standard.h>
+#include <ltsmin-lib/ltsmin-standard.h>
 #include <util/chunk_support.h>
 #include <util/dynamic-array.h>
 #include <util/stringindex.h>
