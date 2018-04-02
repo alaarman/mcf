@@ -37,8 +37,8 @@ add_subdirectory(util-mc)
 add_subdirectory(pins)
 add_subdirectory(peterson)
 add_subdirectory(ltl2ba)
-#add_subdirectory(ltsmin-lib)
 add_subdirectory(third-party/lemon)
+add_subdirectory(ltsmin-lib)
 add_subdirectory(sylvan)
 add_subdirectory(vset)
 
@@ -60,6 +60,7 @@ add_executable(mc
                 pins2pins/por.c pins2pins/por.h
                 loader/dve-pins.c loader/dve-pins.h
                 loader/loader.c loader/loader.h
+                loader/etf-pins.c loader/etf-pins.h
                 loader/pnml-pins.c loader/pnml-pins.h
                 loader/prom-pins.c loader/prom-pins.h
                 loader/dlopen-pins.c loader/dlopen-pins.h
@@ -67,4 +68,4 @@ add_executable(mc
 
 target_compile_definitions(mc ${LIBXML2_DEFINITIONS} PRIVATE)
 
-target_link_libraries(mc pins util-mc vset andl ${LIBXML2_LIBRARIES} pthread ${CMAKE_DL_LIBS}) 
+target_link_libraries(mc pins util-mc vset andl syntax ${LIBXML2_LIBRARIES} pthread ${CMAKE_DL_LIBS}) 

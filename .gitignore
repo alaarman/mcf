@@ -25,3 +25,11 @@ andl/andl-parser.h
 ltl2ba/ltl2ba
 *.Po
 third-party/lemon/lemon
+ltsmin-lib/mucalc-grammar.c
+ltsmin-lib/mucalc-grammar.h
+ltsmin-lib/ltsmin-grammar.c
+ltsmin-lib/ltsmin-grammar.h
+ltsmin-lib/ltsmin-lexer.c
+ltsmin-lib/ltsmin-lexer.h
+ltsmin-lib/mucalc-lexer.c
+ltsmin-lib/mucalc-lexer.h
