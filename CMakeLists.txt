@@ -38,6 +38,7 @@ add_subdirectory(pins)
 add_subdirectory(peterson)
 add_subdirectory(ltl2ba)
 #add_subdirectory(ltsmin-lib)
+add_subdirectory(third-party/lemon)
 add_subdirectory(sylvan)
 add_subdirectory(vset)
 
