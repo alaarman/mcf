@@ -11,6 +11,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +20,7 @@ extern "C" {
 #define CACHE_LINE 6
 #define CACHE_LINE_SIZE    64
 
+#define VERBOSE 1
 
 #define expect_false(e) __builtin_expect(e, 0)
 #define expect_true(e) __builtin_expect(e, 1)
@@ -49,11 +51,16 @@ extern "C" {
 #define Print0(...)  do { printf(__VA_ARGS__); } while (0)
 #define Print(...)  do { printf(__VA_ARGS__); printf("\n"); } while (0)
 #define Error(...)  do { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); } while (0)
-#define Exit(e,...) do { Error(__VA_ARGS__); exit(e); } while (0)
-#define Abort(...) Exit(1, __VA_ARGS__)
-
+#define Verbose(...) do { if (DEBUG) Error(__VA_ARGS__); } while (0)
 #define Trace(...) do { if (DEBUG) Error(__VA_ARGS__); } while (0)
 #define Debug(...) do { if (DEBUG) Error(__VA_ARGS__); } while (0)
+#define Exit(e,...) do { Error(__VA_ARGS__); exit(e); } while (0)
+#define Abort(...) Exit(1, __VA_ARGS__)
+#define AbortCall(...) {\
+    Error("ERROR at %s:%d (errno: %d)", __FILE__,__LINE__,errno);\
+    Abort(__VA_ARGS__);\
+}
+#define __assume(cond) do { if (!(cond)) __builtin_unreachable(); } while (0)
 
 #define Assert(e,...) \
     do { if (DEBUG) {\
