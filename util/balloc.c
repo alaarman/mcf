@@ -3,6 +3,7 @@
 
 #include <util/balloc.h>
 #include <util/runtime.h>
+#include <util/util.h>
 
 struct block;
 struct block {
