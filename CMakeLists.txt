@@ -29,7 +29,6 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
-add_subdirectory(examples)
 add_subdirectory(bignum)
 add_subdirectory(util)
 add_subdirectory(andl)
@@ -41,6 +40,11 @@ add_subdirectory(ltl2ba)
 #add_subdirectory(ltsmin-lib)
 add_subdirectory(sylvan)
 add_subdirectory(vset)
+
+
+add_subdirectory(examples)
+add_custom_target(examples)
+add_dependencies(examples all_examples)
 
 set(RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
