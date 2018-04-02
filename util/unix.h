@@ -3,7 +3,9 @@
 #ifndef UNIX_H
 #define UNIX_H
 
+#include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if defined(HAVE_DECL_STRNDUP) && !HAVE_DECL_STRNDUP
 extern char *strndup(const char *str, size_t n);
@@ -17,6 +19,31 @@ extern char *strsep(char **stringp, const char *delim);
 #if defined(HAVE_DECL_MKDTEMP) && !HAVE_DECL_MKDTEMP
 extern char *mkdtemp(char *);
 #endif
+
+static inline int long_mult_overflow(const long si_a, const long si_b) {
+    if (si_a > 0) { /* si_a is positive */
+        if (si_b > 0) { /* si_a and si_b are positive */
+            if (si_a > (LONG_MAX / si_b)) return 1;
+        } else { /* si_a positive, si_b nonpositive */
+            if (si_b < (LONG_MIN / si_a)) return 1;
+        } /* si_a positive, si_b nonpositive */
+    } else { /* si_a is nonpositive */
+        if (si_b > 0) { /* si_a is nonpositive, si_b is positive */
+            if (si_a < (LONG_MIN / si_b)) return 1;
+        } else { /* si_a and si_b are nonpositive */
+            if ((si_a != 0) && (si_b < (LONG_MAX / si_a))) return 1;
+        } /* End if si_a and si_b are nonpositive */
+    } /* End if si_a is nonpositive */
+
+    return 0;
+}
+
+static inline char *
+gnu_basename (char *path)
+{
+    char *base = strrchr(path, '/');
+    return base ? base+1 : path;
+}
 
 #if defined(__APPLE__)
 #include <libkern/OSByteOrder.h>

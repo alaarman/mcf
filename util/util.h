@@ -15,7 +15,6 @@ extern "C" {
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define CACHE_LINE 6
 #define CACHE_LINE_SIZE    64
@@ -72,13 +71,6 @@ extern "C" {
             buf[0] = '\0';\
         Exit(EXIT_FAILURE, "assertion \"%s\" failed%s", #e, buf);\
     }}} while (0)
-
-static inline char *
-gnu_basename (char *path)
-{
-    char *base = strrchr(path, '/');
-    return base ? base+1 : path;
-}
 
 static inline size_t
 INT_SIZE (size_t size)
