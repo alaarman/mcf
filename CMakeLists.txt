@@ -57,6 +57,7 @@ add_executable(mc
                 mc.c
                 alg/enum-dfs.c alg/enum-dfs.h
                 alg/sym-bfs.c alg/sym-bfs.h
+                pins2pins/ltl.c pins2pins/ltl.h
                 pins2pins/por.c pins2pins/por.h
                 loader/dve-pins.c loader/dve-pins.h
                 loader/loader.c loader/loader.h
