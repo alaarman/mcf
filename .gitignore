@@ -18,3 +18,7 @@ mc
 *.dve2C
 cmake_install.cmake
 *.spins
+andl/andl-lexer.c
+andl/andl-lexer.h
+andl/andl-parser.c
+andl/andl-parser.h
