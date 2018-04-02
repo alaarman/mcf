@@ -1,1 +1,18 @@
-include SpinS
+
+- Add LTL
+- Add option parsing
+- Add invariant parsing
+- Add verbosity option
+- Add reordering
+- Add error report!
+- Add trace print
+
+- Separate toy algorithms
+
+- Add Lace instead of HRE
+- Add POR algorithms
+- Add mcrl2
+- Add all algorithms
+- Add HRE for distributed alone
+- Add file writing in other tools (hack HRE?)
+- Add tracing and other tools
