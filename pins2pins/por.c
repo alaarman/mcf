@@ -76,30 +76,38 @@ por_next_all (model_t self, int *src, TransitionCB cb, void *ctx)
     GBgetStateLabelsAll(por->model, src, (int *) por->guard_status);
     for (int a = 0; a < por->nactions; a++) {            // actions
         por->action_status[a] = find_disabled(por, a) == -1; // set action enabledness
+        if (por->action_status[a] && list_count(por->queued) == 0) {
+            list_add (por->queued, a);
+            por->action_selected[a] = true;
+        }
     }
 
-
-    //
-    // TODO: start search by addin g a transition to the queue (with list_add())
-    //
-
-
     // deselect all actions:
-    /* memset(por->action_selected, false, por->nactions); */
-    // TODO: uncomment above line and comment below line:
-    memset(por->action_selected, true, por->nactions);
+    memset(por->action_selected, false, por->nactions);
 
+    size_t      nr_enabled = 0;
     while (list_count(por->queued) > 0) {
         int         a1 = list_pop(por->queued);
 
         if (por->action_status[a1]) { // action a1 enabled
+            nr_enabled++;
+            for (int i = 0; i < por->ncommute[a1]->count; i++) {
+                int a2 = por->ncommute[a1]->data[i];    // non-commuting action
 
-            // TODO: select actions to add to the ample set for the enabled transition
-
+                if (por->action_selected[a2]) continue; // skip selected
+                por->action_selected[a2] = true;
+                list_add (por->queued, a2);
+            }
         } else {  // action a2 diabled
+            int g = find_disabled(por, a1);             // disabled guard
+            Assert (g != -1, "No disabled guard for disabled action %d found", a1);
+            for (int i = 0; i < por->nes[g]->count; i++) {
+                int a2 = por->nes[g]->data[i];     // NES action
 
-            // TODO: select actions to add to the ample set for the disabled transition
-
+                if (por->action_selected[a2]) continue; // skip selected
+                por->action_selected[a2] = true;
+                list_add (por->queued, a2);
+            }
         }
     }
 
