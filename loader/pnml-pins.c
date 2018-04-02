@@ -12,7 +12,7 @@
 #include <andl/andl-lexer.h>
 #include <dm/dm.h>
 #include <util/stringindex.h>
-#include <ltsmin-lib/ltsmin-standard.h>
+#include <pins/ltsmin-standard.h>
 #include <util-mc/atomics.h>
 #include <loader/pnml-pins.h>
 #include <pins2pins/por.h>
