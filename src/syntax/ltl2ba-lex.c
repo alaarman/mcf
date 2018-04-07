@@ -39,13 +39,13 @@
 #undef Debug
 #undef Assert
 
-#include <ltsmin-lib/ltl2ba-lex.h>
-#include <ltsmin-lib/ltl2ba-lex-helper.h>
-#include <ltsmin-lib/ltsmin-syntax.h>
-#include <ltsmin-lib/ltsmin-tl.h>
-#include <ltsmin-lib/ltsmin-buchi.h>
+#include <syntax/ltl2ba-lex.h>
+#include <syntax/ltl2ba-lex-helper.h>
+#include <syntax/ltsmin-syntax.h>
+#include <syntax/ltsmin-tl.h>
+#include <syntax/ltsmin-buchi.h>
 
-#include <ltsmin-lib/ltsmin-standard.h>
+#include <syntax/ltsmin-standard.h>
 #include <pins2pins/ltl.h>
 
 #include <util/runtime.h>

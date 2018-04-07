@@ -1,8 +1,8 @@
 #ifndef LTSMIN_TYPE_SYSTEM_H
 #define LTSMIN_TYPE_SYSTEM_H
 
-#include <ltsmin-lib/lts-type.h>
-#include <ltsmin-lib/ltsmin-tl.h>
+#include <syntax/lts-type.h>
+#include <syntax/ltsmin-tl.h>
 
 /**
 \file ltsmin-type-system.h

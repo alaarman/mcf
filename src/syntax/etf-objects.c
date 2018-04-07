@@ -1,5 +1,5 @@
 
-#include <ltsmin-lib/etf-objects.h>
+#include <syntax/etf-objects.h>
 #include <util/treedbs.h>
 #include <util/dynamic-array.h>
 #include <util/util.h>

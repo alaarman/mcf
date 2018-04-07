@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-#include <ltsmin-lib/ltsmin-buchi.h>
-#include <ltsmin-lib/lts-type.h>
+#include <syntax/ltsmin-buchi.h>
+#include <syntax/lts-type.h>
 
 extern void ltsmin_ltl2ba(ltsmin_expr_t);
 extern ltsmin_buchi_t *ltsmin_buchi();

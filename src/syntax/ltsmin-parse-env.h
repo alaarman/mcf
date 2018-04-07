@@ -7,8 +7,8 @@
  */
 
 #include <util/stringindex.h>
-#include <ltsmin-lib/etf-util.h>
-#include <ltsmin-lib/ltsmin-syntax.h>
+#include <syntax/etf-util.h>
+#include <syntax/ltsmin-syntax.h>
 #include <util/dynamic-array.h>
 
 struct op_info{

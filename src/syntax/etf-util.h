@@ -6,8 +6,8 @@
 \brief Enumerated Table Format Utilities.
 */
 
-#include <ltsmin-lib/etf-objects.h>
-#include <ltsmin-lib/lts-type.h>
+#include <syntax/etf-objects.h>
+#include <syntax/lts-type.h>
 #include <util/chunk_support.h>
 #include <util/treedbs.h>
 

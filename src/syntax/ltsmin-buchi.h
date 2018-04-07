@@ -1,8 +1,8 @@
 #ifndef LTSMIN_BUCHI_H
 #define LTSMIN_BUCHI_H
 
-#include <ltsmin-lib/ltsmin-syntax.h>
-#include <ltsmin-lib/ltsmin-parse-env.h>
+#include <syntax/ltsmin-syntax.h>
+#include <syntax/ltsmin-parse-env.h>
 
 typedef struct ltsmin_buchi_transition {
 //    ltsmin_expr_t condition;

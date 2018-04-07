@@ -9,10 +9,10 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#include <andl/andl-lexer.h>
 #include <dm/dm.h>
 #include <util/stringindex.h>
-#include <ltsmin-lib/ltsmin-standard.h>
+#include <syntax/ltsmin-standard.h>
+#include <syntax/andl/andl-lexer.h>
 #include <util-mc/atomics.h>
 #include <loader/pnml-pins.h>
 #include <pins2pins/por.h>

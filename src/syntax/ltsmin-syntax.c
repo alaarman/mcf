@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include <ltsmin-lib/ltsmin-grammar.h>
-#include <ltsmin-lib/ltsmin-parse-env.h> // required for ltsmin-lexer.h!
-#include <ltsmin-lib/ltsmin-lexer.h>
-#include <ltsmin-lib/ltsmin-syntax.h>
+#include <syntax/ltsmin-grammar.h>
+#include <syntax/ltsmin-parse-env.h> // required for ltsmin-lexer.h!
+#include <syntax/ltsmin-lexer.h>
+#include <syntax/ltsmin-syntax.h>
 #include <util/stringindex.h>
 #include <util/util.h>
 #include <util/runtime.h>
@@ -267,7 +267,7 @@ LTSminSPrintExpr(char *buf, size_t max_buf, ltsmin_expr_t expr, ltsmin_parse_env
 {
     /*
      * Make assumption for the optimizer to prevent a false positive warning:
-     * src/ltsmin-lib/ltsmin-syntax.c:326:18: error: null destination pointer
+     * src/syntax/ltsmin-syntax.c:326:18: error: null destination pointer
      * [-Werror=format-truncation=]
      * n += snprintf        (buf + (buf?n:0), max_buf, ".");
      */

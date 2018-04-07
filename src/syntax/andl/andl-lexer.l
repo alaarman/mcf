@@ -5,7 +5,7 @@
 %option noyywrap noyyalloc noyyfree noyyrealloc fast noinput nounput
 %top{
 
-#include <andl/andl-parser.h>
+#include <syntax/andl/andl-parser.h>
 #include <util/runtime.h>
 #include <util/util.h>
 #define YYSTYPE ANDL_STYPE

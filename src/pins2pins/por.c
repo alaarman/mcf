@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include <dm/dm.h>
-#include <ltsmin-lib/ltsmin-standard.h>
+#include <syntax/ltsmin-standard.h>
 #include <pins2pins/por.h>
 #include <pins/pins.h>
 #include <pins/pins-util.h>

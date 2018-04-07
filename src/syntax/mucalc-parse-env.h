@@ -1,7 +1,7 @@
 #ifndef MUCALC_PARSE_ENV_H
 #define MUCALC_PARSE_ENV_H
 
-#include <ltsmin-lib/mucalc-syntax.h>
+#include <syntax/mucalc-syntax.h>
 #include <util/io/stream.h>
 
 /**

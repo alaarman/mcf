@@ -9,8 +9,8 @@
 
 #include <assert.h>
 
-#include <ltsmin-lib/mucalc-parse-env.h>
-#include <ltsmin-lib/mucalc-grammar.h>
+#include <syntax/mucalc-parse-env.h>
+#include <syntax/mucalc-grammar.h>
 #include <util/io/stream.h>
 #include <util/util.h>
 #include <util/runtime.h>

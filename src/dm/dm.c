@@ -8,7 +8,7 @@
 
 #include "dm/bitvector.h"
 #include "dm/dm.h"
-#include "ltsmin-lib/ltsmin-standard.h"
+#include "syntax/ltsmin-standard.h"
 #include "util/runtime.h"
 #include "util/util.h"
 

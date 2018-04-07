@@ -4,9 +4,9 @@
 /* Definitions for a simple predicate language & temporal logics */
 
 #include <dm/bitvector.h>
-#include <ltsmin-lib/lts-type.h>
-#include <ltsmin-lib/ltsmin-grammar.h>
-#include <ltsmin-lib/ltsmin-syntax.h>
+#include <syntax/lts-type.h>
+#include <syntax/ltsmin-grammar.h>
+#include <syntax/ltsmin-syntax.h>
 
 /* Predicate language */
 typedef enum {

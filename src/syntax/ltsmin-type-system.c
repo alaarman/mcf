@@ -1,10 +1,10 @@
 
 #include <stdbool.h>
 
-#include <ltsmin-lib/lts-type.h>
-#include <ltsmin-lib/ltsmin-tl.h>
-#include <ltsmin-lib/ltsmin-type-system.h>
-#include <ltsmin-lib/ltsmin-standard.h>
+#include <syntax/lts-type.h>
+#include <syntax/ltsmin-tl.h>
+#include <syntax/ltsmin-type-system.h>
+#include <syntax/ltsmin-standard.h>
 #include <util/runtime.h>
 #include <util/util.h>
 

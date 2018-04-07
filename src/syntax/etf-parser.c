@@ -1,12 +1,12 @@
 
 #include <stdio.h>
 
-#include <ltsmin-lib/ltsmin-syntax.h>
-#include <ltsmin-lib/ltsmin-grammar.h>
-#include <ltsmin-lib/ltsmin-parse-env.h>
-#include <ltsmin-lib/ltsmin-lexer.h>
-#include <ltsmin-lib/etf-internal.h>
-#include <ltsmin-lib/etf-util.h>
+#include <syntax/ltsmin-syntax.h>
+#include <syntax/ltsmin-grammar.h>
+#include <syntax/ltsmin-parse-env.h>
+#include <syntax/ltsmin-lexer.h>
+#include <syntax/etf-internal.h>
+#include <syntax/etf-util.h>
 #include <util/util.h>
 #include <util/runtime.h>
 

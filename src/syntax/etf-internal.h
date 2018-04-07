@@ -1,7 +1,7 @@
 #ifndef ETF_INTERNAL_H
 #define ETF_INTERNAL_H
 
-#include <ltsmin-lib/etf-util.h>
+#include <syntax/etf-util.h>
 #include <util/dynamic-array.h>
 #include <util/stringindex.h>
 

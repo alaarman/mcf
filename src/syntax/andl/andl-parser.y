@@ -26,7 +26,7 @@
 #endif
 }
 %code{
-#include <andl/andl-lexer.h>
+#include <syntax/andl/andl-lexer.h>
 #include <util/stringindex.h>
 #include <util/runtime.h>
 #include <util/util.h>

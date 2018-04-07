@@ -6,8 +6,8 @@
  */
 #include <stdbool.h>
 
-#include <ltsmin-lib/ltsmin-type-system.h>
-#include <ltsmin-lib/ltsmin-standard.h>
+#include <syntax/ltsmin-type-system.h>
+#include <syntax/ltsmin-standard.h>
 #include <pins/property-semantics.h>
 #include <pins/pins-util.h>
 #include <pins2pins/por.h>

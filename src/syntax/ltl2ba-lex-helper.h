@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include <ltsmin-lib/ltsmin-syntax.h>
-#include <ltsmin-lib/ltsmin-tl.h>
-#include <ltsmin-lib/ltsmin-buchi.h>
+#include <syntax/ltsmin-syntax.h>
+#include <syntax/ltsmin-tl.h>
+#include <syntax/ltsmin-buchi.h>
 
 typedef struct ltsmin_expr_list_t {
     char* text;

@@ -1,12 +1,12 @@
 
 #include <stdbool.h>
 
-#include <ltsmin-lib/ltsmin-grammar.h>
-#include <ltsmin-lib/ltsmin-parse-env.h> // required for ltsmin-lexer.h!
-#include <ltsmin-lib/ltsmin-lexer.h>
-#include <ltsmin-lib/ltsmin-tl.h>
-#include <ltsmin-lib/ltsmin-type-system.h>
-#include <ltsmin-lib/ltsmin-standard.h>
+#include <syntax/ltsmin-grammar.h>
+#include <syntax/ltsmin-parse-env.h> // required for ltsmin-lexer.h!
+#include <syntax/ltsmin-lexer.h>
+#include <syntax/ltsmin-tl.h>
+#include <syntax/ltsmin-type-system.h>
+#include <syntax/ltsmin-standard.h>
 #include <util/chunk_support.h>
 #include <util/dynamic-array.h>
 #include <util/stringindex.h>

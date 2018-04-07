@@ -1,7 +1,7 @@
 
 
 
-#include <ltsmin-lib/ltl2ba-lex-helper.h>
+#include <syntax/ltl2ba-lex-helper.h>
 #include <util/runtime.h>
 #include <util/util.h>
 

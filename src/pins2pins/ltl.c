@@ -11,19 +11,19 @@
 
 
 
-#include <ltsmin-lib/ltl2ba-lex.h>
+#include <syntax/ltl2ba-lex.h>
 
 #ifdef HAVE_SPOT
-#include <ltsmin-lib/ltl2spot.h>
+#include <syntax/ltl2spot.h>
 #endif
 
-//#include <ltsmin-lib/ltl2spot.h>
-//#include <ltsmin-lib/ltsmin-standard.h>
+//#include <syntax/ltl2spot.h>
+//#include <syntax/ltsmin-standard.h>
 
 
 #include <dm/dm.h>
 #include <pins/pins.h>
-#include <ltsmin-lib/ltsmin-standard.h>
+#include <syntax/ltsmin-standard.h>
 #include <pins/pins-util.h>
 #include <pins/property-semantics.h>
 #include <pins2pins/ltl.h>

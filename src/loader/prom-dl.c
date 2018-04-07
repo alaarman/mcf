@@ -6,7 +6,7 @@
 
 #include "dm/dm.h"
 #include "loader/prom-dl.h"
-#include "ltsmin-lib/ltsmin-standard.h"
+#include "syntax/ltsmin-standard.h"
 #include "pins/pins-util.h"
 #include "util/chunk_support.h"
 #include "util/runtime.h"

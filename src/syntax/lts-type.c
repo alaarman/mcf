@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include <ltsmin-lib/lts-type.h>
+#include <syntax/lts-type.h>
 #include <util/dynamic-array.h>
 #include <util/stringindex.h>
 #include <util/runtime.h>

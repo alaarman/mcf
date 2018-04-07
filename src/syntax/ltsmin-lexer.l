@@ -5,8 +5,8 @@
 %option extra-type="ltsmin_parse_env_t"
 %{
 #include <util/chunk_support.h>
-#include <ltsmin-lib/ltsmin-parse-env.h>
-#include <ltsmin-lib/ltsmin-grammar.h>
+#include <syntax/ltsmin-parse-env.h>
+#include <syntax/ltsmin-grammar.h>
 #include <util/util.h>
 #include <util/runtime.h>
 

@@ -1,6 +1,6 @@
 
 #include <dm/dm.h>
-#include <ltsmin-lib/etf-util.h>
+#include <syntax/etf-util.h>
 #include <pins/pins-util.h>
 #include <loader/etf-pins.h>
 #include <util/stringindex.h>
