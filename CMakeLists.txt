@@ -17,16 +17,6 @@ set(CMAKE_CPP_FLAGS_RELEASE "${CMAKE_CPP_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_LD_FLAGS_RELEASE  "${CMAKE_LD_FLAGS_RELEASE}")
 
-ADD_CUSTOM_TARGET (distclean)
-
-ADD_CUSTOM_COMMAND(
-    DEPENDS clean
-    COMMENT "distribution clean"
-    COMMAND rm
-    ARGS    -rf *.dSYM */*.dSYM Makefile */Makefile */CMakeFiles CMakeFiles CMakeCache.txt Makefile */Makefile  */CMakeCache.txt cmake_install.cmake */cmake_install.cmake
-    TARGET  distclean
-)
-
 include_directories(src third-party)
 
 add_subdirectory(src)
