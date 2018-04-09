@@ -36,8 +36,7 @@ file( GLOB DVE_MODELS *.dve.cpp )
 foreach( sourcefile ${DVE_MODELS} )
    
     get_filename_component(lname "${sourcefile}" NAME)
-    string(REGEX MATCH "^(.*)\\.[^.]*$" lname ${lname})
-#    message("${lname} ${sourcefile}\n")
+    string(REGEX REPLACE "\\.[^.]*$" "" lname ${lname})
     
     add_library(${lname} EXCLUDE_FROM_ALL SHARED ${sourcefile} ../src/loader/dve-dl.h ../src/loader/dve-dl.c)
 #    set_target_properties(${lname} PROPERTIES LINKER_LANGUAGE C)
