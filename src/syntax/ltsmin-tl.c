@@ -169,9 +169,11 @@ create_pred_env(ltsmin_parse_env_t env)
     LTSminBinaryOperator(env, PRED_IMPLY,  PRED_NAME(PRED_IMPLY), 9);
 }
 
-ltsmin_expr_t
-pred_parse_file(const char *file, ltsmin_parse_env_t env, lts_type_t lts_type)
+ltsmin_parse_env_t
+pred_parse_file(const char *file, lts_type_t lts_type)
 {
+    ltsmin_parse_env_t env = LTSminParseEnvCreate();
+
     stream_t stream = read_formula (file);
 
     fill_env (env, lts_type);
@@ -184,7 +186,7 @@ pred_parse_file(const char *file, ltsmin_parse_env_t env, lts_type_t lts_type)
 
     get_data_format_unary(UNARY_BOOL_OPS, env->expr, env, df);
     
-    return env->expr;
+    return env;
 }
 
 static void
@@ -277,9 +279,11 @@ ltl_tree_walker(ltsmin_expr_t in)
  *     binary priority 11         : U,R
  * LOW
  */
-ltsmin_expr_t
-ltl_parse_file(const char *file, ltsmin_parse_env_t env, lts_type_t ltstype)
+ltsmin_parse_env_t
+ltl_parse_file(const char *file, lts_type_t ltstype)
 {
+    ltsmin_parse_env_t env = LTSminParseEnvCreate();
+
     stream_t stream = read_formula (file);
 
     fill_env (env, ltstype);
@@ -294,7 +298,7 @@ ltl_parse_file(const char *file, ltsmin_parse_env_t env, lts_type_t ltstype)
 
     env->expr = ltl_tree_walker(env->expr);
 
-    return env->expr;
+    return env;
 }
 
 static void
@@ -356,9 +360,11 @@ create_ctl_env(ltsmin_parse_env_t env)
  *     U (?AU, EU?)
  *  LOW
  */
-ltsmin_expr_t
-ctl_parse_file(const char *file, ltsmin_parse_env_t env, lts_type_t ltstype)
+ltsmin_parse_env_t
+ctl_parse_file(const char *file, lts_type_t ltstype)
 {
+    ltsmin_parse_env_t env = LTSminParseEnvCreate();
+
     stream_t stream = read_formula (file);
 
     fill_env (env, ltstype);
@@ -371,7 +377,7 @@ ctl_parse_file(const char *file, ltsmin_parse_env_t env, lts_type_t ltstype)
 
     get_data_format_unary(UNARY_BOOL_OPS, env->expr, env, df);
 
-    return env->expr;
+    return env;
 }
 
 static void
@@ -422,9 +428,11 @@ create_mu_env(ltsmin_parse_env_t env)
  * note: when checking priorities, use ltsmin-grammer.lemon
  * for priorities, notice that prefix 1 has a higher priority than bin 1
  */
-ltsmin_expr_t
-mu_parse_file(const char *file, ltsmin_parse_env_t env, lts_type_t ltstype)
+ltsmin_parse_env_t
+mu_parse_file(const char *file, lts_type_t ltstype)
 {
+    ltsmin_parse_env_t env = LTSminParseEnvCreate();
+
     stream_t stream = read_formula (file);
 
     fill_env (env, ltstype);
@@ -437,7 +445,7 @@ mu_parse_file(const char *file, ltsmin_parse_env_t env, lts_type_t ltstype)
 
     get_data_format_unary(UNARY_BOOL_OPS, env->expr, env, df);
 
-    return env->expr;
+    return env;
 }
 
 

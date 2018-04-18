@@ -37,7 +37,7 @@ typedef enum {
     PRED_EN    = S_EN,
 } Pred;
 
-extern ltsmin_expr_t pred_parse_file(const char *,ltsmin_parse_env_t,lts_type_t);
+extern ltsmin_parse_env_t pred_parse_file(const char *,lts_type_t);
 
 /* linear temporal logic */
 typedef enum {
@@ -76,7 +76,7 @@ typedef enum {
     LTL_UNTIL
 } LTL;
 
-extern ltsmin_expr_t ltl_parse_file(const char *,ltsmin_parse_env_t,lts_type_t);
+extern ltsmin_parse_env_t ltl_parse_file(const char *,lts_type_t);
 
 /* Computation Tree logic */
 
@@ -115,7 +115,7 @@ typedef enum {
     CTL_ALL
 } CTL;
 
-extern ltsmin_expr_t ctl_parse_file(const char *,ltsmin_parse_env_t,lts_type_t);
+extern ltsmin_parse_env_t ctl_parse_file(const char *,lts_type_t);
 
 
 /* mu-alculus */
@@ -164,7 +164,7 @@ extern const char  *MU_NAME(MU mu);
 
 extern stream_t read_formula(const char *file);
 
-extern ltsmin_expr_t mu_parse_file(const char *,ltsmin_parse_env_t,lts_type_t);
+extern ltsmin_parse_env_t mu_parse_file(const char *,lts_type_t);
 
 /* Conversion */
 extern ltsmin_expr_t ltl_to_ctl_star(ltsmin_expr_t);

@@ -5,24 +5,79 @@
 #include <unistd.h>
 
 #include "aux/options.h"
+#include "syntax/ltsmin-tl.h"
 #include "util/util.h"
 
+static const char      INV_OPT[] = "--inv=";
+static const char      SYM_OPT[] = "--sym";
+static const char      POR_OPT[] = "--por";
+static const char      LTL_OPT[] = "--ltl=";
+static const char      CTL_OPT[] = "--ctl=";
+static const char      CTLSTAR_OPT[] = "--ctl-star=";
+static const char      MU_OPT[]  = "--mu=";
+
+settings_t SETTINGS = {
+    .OPTIONS = {
+        .POR = false,
+        .SYM = false,
+        .FNAME = NULL,
+        .INVARIANT = NULL,
+        .LTL = NULL,
+        .CTL = NULL,
+        .CTLSTAR = NULL,
+        .MU = NULL
+    }
+};
 
 void
 parse_options(int argc, const char **argv)
 {
     // Parse command line options:
-
+    Print("%d %s %d.\n",  sizeof(INV_OPT), INV_OPT, strncmp("--inv=sdds", INV_OPT, sizeof(INV_OPT)-2) );
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--por") == 0) {
-            SETTINGS.POR = true;
-        } else if (strcmp(argv[i], "--sym") == 0) {
-            SETTINGS.SYM = true;
-        } else if (access(argv[i], F_OK) == -1) {
-            SETTINGS.FNAME = argv[i];
+        if (strcmp(argv[i], POR_OPT) == 0) {
+            SETTINGS.OPTIONS.POR = true;
+        } else if (strcmp(argv[i], SYM_OPT) == 0) {
+            SETTINGS.OPTIONS.SYM = true;
+        } else if (strncmp(argv[i], INV_OPT, sizeof(INV_OPT)-1) == 0) {
+            SETTINGS.OPTIONS.INVARIANT = &argv[i][sizeof(INV_OPT)-1];
+        } else if (strncmp(argv[i], LTL_OPT, sizeof(LTL_OPT)-1) == 0) {
+            SETTINGS.OPTIONS.LTL = &argv[i][sizeof(LTL_OPT)-1];
+        } else if (strncmp(argv[i], CTL_OPT, sizeof(CTL_OPT)-1) == 0) {
+            SETTINGS.OPTIONS.CTL = &argv[i][sizeof(CTL_OPT)-1];
+        } else if (strncmp(argv[i], CTLSTAR_OPT, sizeof(CTLSTAR_OPT)-1) == 0) {
+            SETTINGS.OPTIONS.CTLSTAR = &argv[i][sizeof(CTLSTAR_OPT)-1];
+        } else if (strncmp(argv[i], MU_OPT, sizeof(MU_OPT)-1) == 0) {
+            SETTINGS.OPTIONS.MU = &argv[i][sizeof(MU_OPT)-1];
+        } else if (access(argv[i], R_OK) == 0) {
+            SETTINGS.OPTIONS.FNAME = argv[i];
         } else {
             Abort ("Unknown option '%s'.", argv[i]);
         }
     }
-    if (SETTINGS.FNAME == NULL) Abort("Supply a file name.");
+    if (SETTINGS.OPTIONS.FNAME == NULL) Abort("Supply a file name.");
+}
+
+
+void
+process_options(model_t model)
+{
+    options_t *O = &SETTINGS.OPTIONS;
+    lts_type_t ltstype = GBgetLTStype(model);
+
+    if (O->INVARIANT != NULL) {
+        SETTINGS.INVARIANT = pred_parse_file(O->INVARIANT, ltstype);
+    }
+    if (O->LTL != NULL) {
+        SETTINGS.LTL = ltl_parse_file(O->LTL, ltstype);
+    }
+    if (O->CTL != NULL) {
+        SETTINGS.CTL = ctl_parse_file(O->CTL, ltstype);
+    }
+    if (O->CTLSTAR != NULL) {
+        SETTINGS.CTLSTAR = ctl_parse_file(O->CTLSTAR, ltstype);
+    }
+    if (O->MU != NULL) {
+        SETTINGS.MU = mu_parse_file(O->MU, ltstype);
+    }
 }

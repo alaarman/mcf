@@ -428,12 +428,11 @@ ltsmin_buchi_t *
 init_ltsmin_buchi(lts_type_t ltstype, const char *ltl_file, bool negate)
 {
     Print("LTL layer: formula: %s", ltl_file);
-    ltsmin_parse_env_t env = LTSminParseEnvCreate();
-    ltsmin_expr_t ltl = ltl_parse_file (ltl_file, env, ltstype);
+    ltsmin_parse_env_t ltl = ltl_parse_file (ltl_file, ltstype);
     LTL_info_t LTL_info = {0, 0};
-    check_LTL(ltl, env, &LTL_info);
+    check_LTL(ltl->expr, ltl, &LTL_info);
 
-    ltl = LTSminExpr(UNARY_OP, LTL_NOT, 0, ltl, NULL);
+    ltl->expr = LTSminExpr(UNARY_OP, LTL_NOT, 0, ltl->expr, NULL);
 
     ltsmin_buchi_t *ba;
 #ifdef HAVE_SPOT
@@ -443,7 +442,7 @@ init_ltsmin_buchi(lts_type_t ltstype, const char *ltl_file, bool negate)
     } else {
 #endif
         //Assert(type == PINS_BUCHI_TYPE_BA, "Buchi type is not possible without Spot");
-        ltsmin_ltl2ba(ltl);
+        ltsmin_ltl2ba(ltl->expr);
         ba = ltsmin_buchi();
 #ifdef HAVE_SPOT
     }
@@ -456,10 +455,10 @@ init_ltsmin_buchi(lts_type_t ltstype, const char *ltl_file, bool negate)
     if (ba->predicate_count > 30) {
         Abort("more than 30 predicates in buchi automaton are currently not supported");
     }
-    ba->env = env;
+    ba->env = ltl;
 
     Print("buchi has %d states", ba->state_count);
-    if (DEBUG) print_ltsmin_buchi(ba, env);
+    if (DEBUG) print_ltsmin_buchi(ba, ltl);
     return ba;
 }
 

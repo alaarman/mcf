@@ -6,7 +6,10 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#include "aux/options.h"
 #include "pins/pins.h"
+#include "pins/property-semantics.h"
+#include "syntax/ltsmin-tl.h"
 #include "util/dfs-stack.h"
 #include "util/runtime.h"
 #include "util/util.h"
@@ -54,16 +57,45 @@ void process_cb(void *ctx, transition_info_t *ti, int *dst, int *cpy) {
     }
 }
 
+
+void print_state(search_t *S, int *src) {
+    for (size_t i = 0; i < pins_get_state_variable_count(S->model); i++) {
+        Print0("%d, ", src[i]);
+    }
+    Print("\n");
+}
+
+void check_invariant(search_t *S, int *src) {
+    if (eval_state_predicate(S->model, SETTINGS.INVARIANT, src) == 0)
+        return;
+    Error ("Invariant violation FOUND.");
+    Error ("Printing trace:");
+    print_state (S, src);
+    while (dfs_stack_nframes(S->stack) > 0) {
+        dfs_stack_leave(S->stack);
+        S->src_tree = dfs_stack_top(S->stack);
+        int *src = tree_ll_data(S->visited, S->src_tree);
+        print_state (S, src);
+    }
+    // TODO: print actions and labels
+    Exit(1, "Invariant '%s' violated.", SETTINGS.OPTIONS.INVARIANT);
+
+}
+
 /**
  * Perform search
  */
-void dfs(search_t *S){
+void dfs(search_t *S) {
     while (dfs_stack_size(S->stack) > 0) {
 
         // greedy search:
         while (dfs_stack_frame_size(S->stack) > 0) {
             S->src_tree = dfs_stack_top(S->stack);
             int *src = tree_ll_data(S->visited, S->src_tree);
+
+            if (SETTINGS.INVARIANT != NULL)
+                check_invariant(S, src);
+
             dfs_stack_enter (S->stack);
             size_t count = GBgetTransitionsAll(S->model, src, process_cb, (void *) S);
             monitor_progress(S, count);

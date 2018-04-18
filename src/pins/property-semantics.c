@@ -279,8 +279,8 @@ eval_trans_predicate(model_t model, ltsmin_expr_t e, int *state, int* edge_label
 
 
 long
-eval_state_predicate(model_t model, ltsmin_expr_t e, int *state, ltsmin_parse_env_t env)
+eval_state_predicate(model_t model, ltsmin_parse_env_t e, int *state)
 {
     static int edge_error[1] = {-1};
-    return eval_trans_predicate(model, e, state, edge_error, env);
+    return eval_trans_predicate(model, e->expr, state, edge_error, e);
 }

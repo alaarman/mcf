@@ -212,17 +212,16 @@ static ltsmin_buchi_t *
 init_buchi(model_t model, const char *ltl_file)
 {
     Print( "LTL layer: formula: %s", ltl_file);
-    ltsmin_parse_env_t env = LTSminParseEnvCreate();
-    ltsmin_expr_t ltl = ltl_parse_file (ltl_file, env, GBgetLTStype(model));
+    ltsmin_parse_env_t ltl = ltl_parse_file (ltl_file, GBgetLTStype(model));
     struct LTL_info LTL_info = {0, 0};
-    check_LTL(ltl, env, &LTL_info);
+    check_LTL(ltl->expr, ltl, &LTL_info);
     if (LTL_info.has_X && PINS_POR) {
-        const char* ex = LTSminPrintExpr(ltl, env);
+        const char* ex = LTSminPrintExpr(ltl->expr, ltl);
         Abort("The neXt operator is not allowed in "
                 "combination with --por: %s", ex);
     }
 
-    ltsmin_expr_t notltl = LTSminExpr(UNARY_OP, LTL_NOT, 0, ltl, NULL);
+    ltsmin_expr_t notltl = LTSminExpr(UNARY_OP, LTL_NOT, 0, ltl->expr, NULL);
 
     ltsmin_buchi_t *ba;
 #ifdef HAVE_SPOT
@@ -247,8 +246,8 @@ init_buchi(model_t model, const char *ltl_file)
         if (ba->predicate_count > 30) {
             Abort("more than 30 predicates in buchi automaton are currently not supported");
         }
-        ba->env = env;
-        print_ltsmin_buchi(ba, env);
+        ba->env = ltl;
+        print_ltsmin_buchi(ba, ltl);
     }
 
     return ba;
