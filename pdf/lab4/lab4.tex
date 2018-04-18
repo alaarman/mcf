@@ -1,0 +1,64 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{hyperref}
+
+
+\begin{document}
+	\title{Implementing a DPLL Sat Solver}
+	\author{Pim Wijn and Alfons Laarman}
+	
+	\maketitle
+	
+	The goal is to implement a sat solver based on the DPLL algorithm that can be used on satisfiability problems of modest size.
+	The implementation can be separated in three steps: implementing the backtracking structure of the algorithm, adding boolean constraint propagation and improving the underlying data-structures.
+	
+	It is not necessary to completely implement all supporting functionality and structures. The code provided contains gaps that have to be filled in to implement the algorithm. Each of the gaps contains a \textbf{TODO} with a short explanation. Extra methods can be added if necessary, but they are not required for the final implementation (if you do so, make sure to document them well).
+	
+	All relevant header files contain documentation for each non-trivial method.
+	
+	\paragraph{Resources}
+	\begin{enumerate}
+		\item SAT and DPLL basics:  \url{http://satassociation.org/articles/sat.pdf}
+		\item Lazy data-structures (section 4.5.1) \url{http://satassociation.org/articles/FAIA185-0131.pdf}
+	\end{enumerate}
+	
+	
+	\subsubsection*{Step 1: DPLL Backtracking}
+	First it is necessary to implement a simple backtracking search. This resulting implementation is not very efficient, but simple. It will help in implementing extensions to the algorithm.
+	For the first step it is necessary to implement:
+	\begin{enumerate}
+		\item a first version of the \textbf{DPLL} function in \path{src/DPLL/DPLL.cpp}
+	\end{enumerate}
+
+	\subsubsection*{Step 2: Boolean Constraint Propagation}
+	At this point you have a simple algorithm that searches through all possible combinations of assignments. This can be improved by propagating forced literals (unit clauses).
+	To do this, implement:
+	\begin{enumerate}
+		\item \textbf{isUnitClause} in \path{src/structures/Clause.cpp}
+		\item \textbf{getImpliedLiteral} in \path{src/structures/Clause.cpp}
+		\item \textbf{unitPropagate} in \path{src/DPLL/DPLL.cpp}
+		\item improve \textbf{DPLL} to use \textbf{unitPropagate} before choosing the next literal
+		\item \textbf{setLiteral} in \path{src/structures/CNF.cpp} (to actively track counters, or later watched literals)
+	\end{enumerate}
+	
+	\subsubsection*{Step 3: Watched Literals (optional)}
+	At this point it is still necessary to explicitly evaluate all clauses and literals to find unit clauses.
+	This can be prevented by using watched literals and lazy data-structures.
+	For this in \path{src/structures/Clause.cpp} implement:
+	\begin{enumerate}
+		\item Improve \textbf{getImpliedLiteral} to use watched literals
+		\item Improve \textbf{isUnitClause} to use watched literals
+		\item Implement \textbf{updateWatchedLiteral}
+	\end{enumerate}
+	In \path{src/structures/CNF.cpp} implement:
+	\begin{enumerate}
+		\setcounter{enumi}{3}
+		\item Add the updating of watched literals to \textbf{setLiteral}
+	\end{enumerate}
+	
+There are numerous of larger and smaller examples in the \texttt{examples/}	 directory (see \texttt{README.txt} for SAT / UNSAT versions). Make sure to test you test your implementation on various examples.
+Write a small report where you keep track of the improvements between
+the different versions of the algorithm that you created and hand it in on Blackboard.
+	
+\end{document}}

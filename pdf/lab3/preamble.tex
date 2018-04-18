@@ -1,0 +1,101 @@
+%!TEX root = main.tex
+
+% for subfigures
+\usepackage[textfont={it,scriptsize}]{subfig}
+
+\usepackage[vlined, boxed,linesnumbered,noend]{algorithm2e}
+
+\usepackage{cprotect}
+\usepackage{booktabs}
+\let\proof\relax
+\let\endproof\relax
+\usepackage{amsthm}
+\usepackage{amsmath,amssymb,mathtools,stmaryrd}
+%\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{complexity}
+\usepackage{tikz}
+\usepackage{xspace}
+%\usepackage{verbatim}
+\usepackage{multicol}
+%\usepackage{fancybox}
+\usepackage{wrapfig}
+\usepackage{enumitem}
+\usepackage{todonotes}
+%\usepackage{paralist}
+\usepackage[bottom]{footmisc}
+\usepackage{footnote}
+\makesavenoteenv{table}
+\makesavenoteenv{tabular}
+%\usepackage{pbox}
+%\usepackage{float}
+\usepackage[font={scriptsize,it}]{caption}
+%\usepackage[font={scriptsize,it}]{subcaption}
+\usepackage{adjustbox}
+\usepackage{color}
+% For striking out text:
+\usepackage{cancel}
+\usepackage[normalem]{ulem}
+%\usepackage[nounderscore]{syntax}
+
+
+% For Arxiv:
+\usepackage{ifpdf}
+    \ifpdf
+\usepackage[colorlinks,citecolor=blue!60!black!70,linkcolor=blue!60!black!70]{hyperref}
+    \else
+%      do something for regular latex or pdflatex in dvi mode
+    \fi
+
+
+\usetikzlibrary{automata}
+\usetikzlibrary{positioning}
+%\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{arrows,patterns}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathreplacing,decorations.markings}
+
+
+\renewcommand\paragraph[1]{\vspace{.0ex}\par\noindent\textbf{#1}.\;\;}
+\newtheorem{observation}{Observation}
+\newtheorem{alg}{Algorithm}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.9}
+
+
+\def\sectionautorefname{Sec.}
+\def\subsectionautorefname{Sec.}
+\def\corollaryautorefname{Cor.}
+\def\definitionautorefname{Def.}
+\def\figureautorefname{Fig.}
+\def\exampleautorefname{Ex.}
+\def\algorithmautorefname{Alg.}
+\def\appendixautorefname{App.}
+\def\algautorefname{Alg.}
+\def\observationautorefname{Obs.}
+\def\lemmaautorefname{Lemma}
+\def\theoremautorefname{Th.}
+\def\equationautorefname{Eq.}
+\newcommand{\subfigureautorefname}{\figureautorefname}
+
+
+\let\ssaphi=\phi % Georg: I need the original phi
+\let\phi=\varphi 
+\let\epsilon=\varepsilon
+\let\code=\verb
+\renewcommand\implies{\Rightarrow}
+
+
+\hyphenation{bet-ween}
+\hyphenation{da-ta-base}
+\hyphenation{wor-ker}
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

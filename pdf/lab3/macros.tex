@@ -1,0 +1,71 @@
+%!TEX root = main.tex
+
+
+\newcommand\defaccr[2]{\newcommand#1{#2\xspace}}
+\newcommand\defmath[2]{\newcommand#1{\ensuremath{#2}\xspace}}
+\newcommand\concept[1]{\textit{#1}}
+
+
+
+\newcommand\ccode[1]{\texttt{#1}}
+
+
+\newcommand{\overarrowi}[1]{\xrightarrow{#1}}
+\newcommand{\overarrow}[1]{
+  \mathchoice{\raisebox{-3pt}{ $\overarrowi{#1}$ }}
+             {\raisebox{-3pt}{ $\overarrowi{#1}$ }}
+             {\raisebox{-3pt}{ $\overarrowi{#1}$ }}
+             {\raisebox{-3pt}{ $\overarrowi{#1}$ }}}
+
+%containers
+\providecommand{\tuple}[1]{\ensuremath{\left( #1 \right)}}
+\providecommand{\set}[1]{\ensuremath{\left\lbrace #1 \right\rbrace}}
+\providecommand{\sequence}[1]{\ensuremath{\left( #1 \right)}}
+\providecommand{\sizeof}[1]{\ensuremath{\left\vert{#1}\right\vert}}
+\providecommand{\vect}[1]{\ensuremath{( \begin{matrix} #1 \end{matrix} )}}
+\providecommand{\always}[1]{\ensuremath{\left[ #1 \right]}}
+\providecommand{\possibly}[1]{\ensuremath{\left\langle #1 \right\rangle}}
+%\newcommand{\powerset}[1]{\wp({#1})}
+\newcommand{\powerset}[1]{\ensuremath{\mathbf{2}^{#1}}}
+% Semantics
+\newcommand{\eval}[2][]{\ensuremath{\llbracket #2\rrbracket^{#1}}}
+
+% Map (bijection)
+\DeclareMathOperator{\bijmap}{%
+ \rlap{\ensuremath{\rightarrowtail}}%
+ 	{\ensuremath{\mkern2mu\twoheadrightarrow}}}
+
+% Abs, Floor, Ceil
+\providecommand{\abs}[1]{\lvert#1\rvert}
+\providecommand{\floor}[1]{\lfloor#1\rfloor}
+\providecommand{\ceil}[1]{\lceil#1\rceil}
+
+\newcommand{\defn}{\,\triangleq\,}
+
+% Rotate text
+\newcommand{\turner}[3][10em]{% \turn[<width>]{<angle>}{<stuff>}
+  \rlap{\rotatebox{#2}{\begin{varwidth}[t]{#1}#3\end{varwidth}}}%
+}
+
+
+\providecommand{\Assign}[2]{{#1{~:=~}#2}}
+\providecommand{\AssignState}[2]{\State \Assign{#1}{#2}}
+
+
+%initial state
+\newcommand{\inits}{s^0}
+
+%transition relation expression
+\newcommand{\transrelexpr}{\mathsf{next}}%\mathord{\hookrightarrow}}
+
+\defmath{\explored}{\mathsf{explored}}
+\defmath{\visited}{\mathsf{visited}}
+\defmath{\level}{\mathsf{level}}
+\defmath{\tmp}{\mathsf{tmp}}
+\defmath{\WM}{\mathsf{WM}}
+\defmath{\RM}{\mathsf{RM}}
+%next state small caps
+\renewcommand{\next}{\mathsf{next}}
+
+%next state small caps
+\newcommand{\nextstate}{\textsc{next-state-r2w}\xspace}

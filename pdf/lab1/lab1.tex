@@ -1,0 +1,190 @@
+\documentclass[12pt]{article}
+
+\input{preamble}
+\input{macros}
+
+
+\title{Input Formalisms for Model Checking}
+
+\author{{Alfons Laarman, Pim Wijn}}
+
+
+\pagestyle{plain}
+
+\def\ltsmin{\textsc{LTSmin}\xspace}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+The current lab assignment lets you ``model'' the
+Peterson protocol for $N$ processes. In fact, the task is
+to model the system on a low level, allowing us to organize
+the state vector ourselves.
+
+The next-state interface used for this exercise comes from
+the language-independent  model checker \ltsmin\footnote{http://fmt.cs.utwente.nl/tools/ltsmin/}. 
+And once the Peterson protocol has been implemented,
+it can be checked with \ltsmin.
+
+Download the zip file with the for the lab from blackboard.
+The file contains a script to dowload and 
+install \ltsmin in your homedir
+(\texttt{\$HOME/ltsmin} by default).
+
+To run the script call:
+
+\texttt{sh ltsmin.sh}
+
+
+\section{Peterson for $N$ Processes}
+
+The file \texttt{peterson.c} is a template for
+the protocol. The state vector and several
+auxiliary functions have already been worked out.
+The comments should give an idea about the purpose of
+the code. 
+
+\begin{proof}[Task 1]
+Implement the Peterson protocol as it is described in the top comment.
+\end{proof}
+
+The model can be compiled with:\\
+%\footnote{On MacOS, an additional option \texttt{-undefined dynamic\_lookup} is required.}\\{\footnotesize
+%\texttt{gcc -o peterson.so dlopen-impl.c peterson.c -I\$HOME/ltsmin/include/ -I.}}\\
+%or simply:\\
+{\footnotesize
+\texttt{make peterson.so}}
+
+
+
+After compilation, you might first want to check the model on invalid modeling artifacts like deadlocks:\\
+{\footnotesize
+\texttt{
+pins2lts-mc --procs=1 --state=table peterson.so
+--deadlock
+}}
+
+If a deadlock is found, you can generate a trace:\\
+{\footnotesize
+\texttt{
+pins2lts-mc --procs=1 --state=table peterson.so
+--deadlock --trace=path.gcf 
+}}
+which can be printed as follows:\\
+{\footnotesize
+\texttt{
+ltsmin-printtrace path.gcf 
+}}\\
+(\ltsmin prints \texttt{deadlock FOUND} if it found a deadlock state. To make sure that no bug was found, you can also check the return value of the \texttt{pins2lts-mc} tool using \texttt{echo \$?}.)
+
+
+What about overflows? You could add assertions in 
+\texttt{peterson.c} to avoid them. Alternatively, the model checker
+can also be used to check the values in the state vector (but not faulty indexing into the vector, so you still need assertions):\\
+{\footnotesize
+\texttt{
+pins2lts-mc --procs=1 --state=table peterson.so
+--invariant="$\backslash$! (level0==4)"
+}}\\
+(The exclamation mark needs to be escaped (with a backslash),
+for else it is interpreted by the shell. 
+Furthermore, \texttt{level0} refers to a slot in the state vector here.
+State labels are also supported in invariants.)
+
+For more information on the (limited) predicate language to write invariants in, see:\\
+{\footnotesize\texttt{man ltsmin-pred}}
+
+Finally, we can also check (partial) mutual exclusion:\\
+{\footnotesize
+\texttt{
+pins2lts-mc --procs=1 --state=table peterson.so
+--invariant="$\backslash$! (CS1 \&\& CS2)"
+}}\\
+
+
+
+Is the modeled protocol realistic? (Think of Line 3).
+
+
+\begin{proof}[Bonus Task 1]
+To witness the state space explosion, you can scale $N$,
+the number of processes and see how many states are generated for
+$N> 4$.
+Some label arrays however needs to be modified and do not
+automatically scale with $N$, see e.g., \texttt{ACTION\_LABELS}.
+\end{proof}
+
+
+
+\begin{proof}[Bonus Task 2]
+By implementing the functions 
+\texttt{write\_matrix} and \texttt{read\_matrix} more precisely,
+the model checker knows more about which groups touch which slots in the
+state vector.
+\ltsmin can use this do do fast symbolic exploration using
+Binary Decision Diagrams. Try running your code with
+the symbolic tool (\texttt{pins2lts-sym}) and compare the
+runtimes with the earlier runs.
+Does the symbolic tool generate the same number of states?
+If not, there is probably some error in the
+\texttt{write\_matrix} / \texttt{read\_matrix} implementation.
+
+See \texttt{label\_matrix} for an example of how to implement these
+functions. (The label matrix $L_{i,j}$
+says which slots $j$ of the state vector are
+read to evaluate a state label $i$.)
+\end{proof}
+
+
+
+\section{Write your Own Model Checker}
+
+It is easy to write your own checker for \texttt{peterson.c}.
+The file \texttt{mc.cpp} contains some hints and already does 
+the exploration of the initial state vector. The file can be compiled
+using the command:\\
+\texttt{make mc}
+
+\begin{proof}[Task 2]
+Write a simple reachability checker for \texttt{peterson.c}
+based on \texttt{mc.c}.
+Check that indeed full mutual exclusion holds for your
+implementation of the protocol. This can be done by
+counting the state labels CS0 to CS3 for all states,
+or equivalently by counting the number of processes
+with $pc = 4$.
+\end{proof}
+
+
+A good way to validate your model checker implementation is by
+counting the number of unique states and comparing the
+count to the count returned by \ltsmin.
+Is the state count indeed the same as with \ltsmin?
+
+Assuming the set implementation in C++ is linear, how much
+memory does your model checker use, given that it explores
+$n$ states?
+
+
+\section{Hand in Results}
+
+Write a small report answering the above questions and zip it together with
+your source code.
+Hand in your results in the `turnitin' section on Blackboard.
+
+
+%
+%\bibliographystyle{plain}
+%\bibliography{lit}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

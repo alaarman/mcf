@@ -1,0 +1,92 @@
+%!TEX root = main.tex
+
+
+\defmath\dna{\ensuremath\mathcal{\not\bowtie}}
+\defmath\B{\ensuremath\mathit{B}}
+
+\newcommand\en{\ensuremath{\mathit{en}}\xspace}
+\newcommand\modell{\ensuremath{M_{\structuraltransitions}}\xspace}
+\newcommand\modelr{\ensuremath{\modell^R}\xspace}
+\newcommand\buchi{\ensuremath{\mathbb{B}}\xspace}
+\newcommand\accepting{\ensuremath{\mathcal{F}}\xspace}
+\newcommand\cross{\ensuremath{\modell\otimes \buchi_{\neg\varphi}}\xspace}
+\newcommand\crossr{\ensuremath{\modell^R\otimes \buchi_{\neg\varphi}}\xspace}
+
+\newcommand\vis{\ensuremath{\structuraltransitions_\mathrm{v}}\xspace}
+\newcommand\vismax{\ensuremath{\vis^\mathrm{min}}\xspace}
+\newcommand\vislabels{\ensuremath{\vis^\mathrm{nes}}\xspace}
+\newcommand\visdyn{\ensuremath{\vis^\mathrm{dyn}}\xspace}
+
+\renewcommand\implies{\Rightarrow}
+
+\newcommand{\instantiator}{\textsc{Instantiator}\xspace}
+\newcommand\nips{\tool{Nips}}
+\newcommand\nipsvm{\nips\-\tool{VM}\xspace}
+\newcommand\spin{{\sc Spin}\xspace}
+\newcommand\spinja{{\sc SpinJa}\xspace}
+\newcommand\promela{\textsc{Promela}\xspace}
+\newcommand\dve{\textsc{Dve}\xspace}
+\newcommand\beem{\textsc{BEEM}\xspace}
+\newcommand\divine{\tool{DiVinE}\xspace}
+\newcommand\mcrl{\ensuremath{\mu\mathrm{CRL}}\xspace}
+\newcommand\mcrltwo{mCRL2\xspace}
+%\newcommand\pins{\iface{Pins}\xspace}
+\newcommand\pinspins{\iface{Pins2Pins}\xspace}
+\newcommand\cadp{CADP\xspace}
+\newcommand\ltsmin{{\sc LTSmin}\xspace}
+
+\newcommand{\statevec}[1]{\ensuremath{\langle{#1}\rangle_{\mathrm{SV}}}}
+\newcommand{\intvec}[1]{\ensuremath{\langle{#1}\rangle_{\mathrm{IV}}}}
+\newcommand{\foldedvec}[1]{\ensuremath{\langle{#1}\rangle_{\mathrm{FV}}}}
+\newcommand{\pair}[1]{\ensuremath{\langle{#1}\rangle}}
+
+\newcommand{\Nat}{\ensuremath{\Bbb N}}
+\newcommand{\Bool}{\ensuremath{\Bbb B}}
+\DeclareMathOperator{\hash}{Hash}
+\newcommand{\statepart}[1][s]{#1}
+
+\newcommand{\struct}[1]{\ensuremath{\langle#1\rangle}}
+
+\newcommand\logor{\vee}
+\newcommand\logand{\wedge}
+\newcommand{\var}[1]{\ensuremath\mathit{#1}}
+
+\newcommand\true{\ensuremath\textbf{true}}
+\newcommand\false{\ensuremath\textbf{false}}
+\newcommand\guards{\ensuremath\mathcal{G}}
+\newcommand\allguards{\ensuremath{\guards_{\structuraltransitions}}}
+\newcommand\initialstate{\ensuremath{s_0}}
+\newcommand\structuraltransitions{\ensuremath\mathcal T}
+\newcommand\semantictransitions{\ensuremath\Delta}
+\newcommand\states{\ensuremath{S}}
+\newcommand\modelstates{\ensuremath {S_{\structuraltransitions}}}
+\newcommand\model{\ensuremath{M_{\structuraltransitions} = (\modelstates,\initialstate,\semantictransitions)}}
+\newcommand\structuraltransition{\ensuremath{t = (\guards,a)}}
+\newcommand\stateelements{\ensuremath{E_1 \times \ldots \times E_n}}
+\newcommand\testset{\ensuremath{\mathit{Ts}}\xspace}
+%\newcommand\readset{\ensuremath{\mathit{Rs}}\xspace}
+%\newcommand\writeset{\ensuremath{\mathit{Ws}}\xspace}
+\newcommand\variableset{\ensuremath{\mathit{Vs}}\xspace}
+\newcommand\MC{\ensuremath{\mathit{MC}}\xspace}
+\newcommand\findnes{\ensuremath{\mathit{find\_nes}}\xspace}
+\newcommand\persistentset{\ensuremath{\mathcal{T}}\xspace}
+\newcommand\stubbornset{\ensuremath{\mathcal{T}_s}\xspace}
+\newcommand\workset{\ensuremath{Q}\xspace}
+\newcommand\keyset{\ensuremath{\mathcal{T}_{\mathit{k}}}\xspace}
+\newcommand\nkset{\ensuremath{\mathcal{T}_{\mathit{n}}}\xspace}
+%\newcommand\nes{\ensuremath{\mathcal{N}}\xspace}
+\newcommand\nesmax{\ensuremath{\nes^\mathrm{min}}\xspace}
+\newcommand\nespins{\ensuremath{\nes^\textsc{pins}}\xspace}
+\newcommand\nds{\ensuremath{\overline{\nes}}\xspace}
+\newcommand\mds{\ensuremath{\mathcal{M}}\xspace}
+\newcommand\ndsmax{\ensuremath{\nds^\mathrm{min}}}
+\newcommand\ndspins{\ensuremath{\nds^\textsc{pins}}}
+
+\newcommand\trans\structuraltransitions
+\newcommand\transitions\structuraltransitions
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

@@ -1,0 +1,382 @@
+\documentclass[12pt]{article}
+
+\input{preamble}
+\input{macros}
+\input{local-macros}
+
+\title{Binary Decision Diagrams}
+
+\author{{Alfons Laarman, Pim Wijn, Richard Huybers}}
+
+
+\pagestyle{plain}
+
+\def\ltsmin{\textsc{LTSmin}\xspace}
+
+
+\begin{document}
+
+\maketitle
+
+
+\todo[inline]{
+Simpler version first (no learning)
+}
+
+\todo[inline]{
+Fix references to lectures? Split in two parts?
+}
+
+\section{Introduction}
+
+The current lab assignment consists of two parts.
+
+
+In the first part, we will use 
+Decisions Diagrams (BDDs and MDDs), or DDs, to
+implement reachability in a model checker based on
+a partitioned next-state interface (PINS).
+The performance of the implementation will be compared
+to that the performance of the enumerative model
+checker storing states in a tree table
+in terms of state compression and runtime.
+
+
+In the second part of the lab, we will assess the correctness
+of BDD packages using the proof assistant Dafny~\cite{dafny}.
+A proof assistant, or theorem prover, provides a way to 
+construct machine checkable proofs.
+The correct  implementation of BDD packages is a tricky and time consuming.
+Therefore, instead, we will reason over their implementation at
+a higher level using the proof assistant.
+
+
+
+\section{BDD-Based Symbolic Model Checking}
+
+
+In the previous lab, 
+PINS was used with long state vectors, i.e.,
+containing all program variables
+(The function \texttt{GBgetTransitionsAll} returns the successors states for all
+transitions and \texttt{GBgetTransitionsLong} can query the successors for a
+single action or \concept{group}).
+PINS also provides the next-state functions for projects, short vectors
+(\texttt{GBgetTransitionsShortR2W} is like \texttt{GBgetTransitionsLong},
+but takes a short vector and yields short, projected successors).
+
+To provide information on the variables in the short vectors,
+PINS provides two boolean matrices: a read matrix $\RM$ and a write matrix $\WM$.
+Each row $\RM_i$ / $\WM_i$ in the matrix represents the $i$th action (or group in PINS
+terminology) in the program. Each column $j$ represents a variable $x_j$
+in the program. So if $\RM_{i,j}=\true$ then action $i$ reads from variable $x_j$.
+We will refer to state vector over all variables $\set{x_1,...,x_n}$ as
+\emph{long vectors}. The \emph{sort vectors}, on the other hand, involve only 
+a subset of the variables, e.g., a \emph{read-projected} short vector for
+group $i$ is defined over $\set{x_j\mid \RM_{i,j}}$, whereas
+a \emph{write-projected} short vector for
+group $i$ is defined over $\set{x_j\mid \WM_{i,j}}$.
+
+In the following, let:
+\begin{itemize}
+	\item $\tuple{s_0, S, \hookrightarrow}$ be the transition system, 
+	\item $K$ be the number of actions,
+	\item $\hookrightarrow \defn \bigcup_{i\in [1..K]} \hookrightarrow_i$ be its partitioning into actions,
+	\item  $S = x_1 \times ... \times x_L$ be the syntactic state space,
+	\item  $W^{i} = \prod_{j \in \WM_{i}} x_j$ be the space of write-projected short vectors for action $i$, and
+	\item  $R^{i} = \prod_{j \in \RM_{i}} x_j$ be the space of read-projected short vectors for action~$i$.
+\end{itemize}
+
+We write a super script $r$/$w$ to indicate that a vector is
+read/write projected short vector, e.g., $s^r\in R^i$.
+Existential quantification over variables (not in the projection) is used to
+transit between short and long vectors:
+\begin{itemize}
+	\item $\rho_i(s) \defn \exists X\colon s$ for $X=\set{x_j\mid \neg \RM_{i,j}}$
+\hfill (read projection)
+	\item $\omega_i(s) \defn \exists X\colon s$ for $X=\set{x_j\mid \neg \WM_{i,j}}$
+\hfill (write projection)
+	\item $\rho^{-1}_i(s^r) \defn s'$ s.t. $s' \in S \land \rho(s')=s^r$
+\hfill (inverse read projection)
+	\item $\omega^{-1}_i(s^w) \defn s'$ s.t. $s' \in S \land \omega(s')=s^w$
+\hfill (inverse write projection)
+\end{itemize}
+
+\def\vx{\vec x}
+\begin{example}
+Note that the inverse projection inserts random values for vars.
+
+\noindent
+	$\vx := \possibly{x,y,z}$\hfill (variables)\\
+	$R^1 := \possibly{x,y}$\hfill (read projection of Action 1)\\
+	$W^1 := \possibly{y}$\hfill (write projection of Action 1)\\
+
+\noindent
+Let $A := \set{\tuple{\textcolor{orange}{1,2},3}, \tuple{\textcolor{orange}{1,2},9}, \tuple{\textcolor{orange}{0,2},3}, \tuple{\textcolor{orange}{1,0},3}}$\\
+\noindent
+	$\rho_1(A) = \set{\tuple{1,2}, \tuple{0,2}, \tuple{1,0}}$\\
+\noindent
+	$\rho_1^{-1}(\rho_1(A)) = \{\tuple{1,2,a}, \tuple{0,2,b}, \tuple{1,0,c}\}$ for 
+	some $a,b,c \in z$
+\qed
+\end{example}
+
+
+
+
+\begin{table}[h]
+\begin{tabular}{|l|l|l|}
+\hline
+\bf Function & \bf Type & \bf Definition \\
+\hline
+	\texttt{GBgetTransitionsAll(..$,s,$..)} & $S\rightarrow 2^S $  
+		& \set{t\mid s\hookrightarrow t} \\ 
+	\texttt{GBgetTransitionsLong(..$,s,i,$..)}& $S\times \mathbb{N} \rightarrow 2^S$
+		& \set{t\mid s\hookrightarrow_i t} \\ 
+	\texttt{GBgetTransitionsShortR2W(..$,s^r,i,$..)}& $R^i\times \mathbb{N} \rightarrow 2^{W^i}$
+		& \set{\omega_i(t)\mid \rho_i^{-1}(s)\hookrightarrow_i t} \\ 
+\hline
+\end{tabular}
+\end{table}
+
+
+\begin{algorithm}[h!]
+\SetAlgoLined
+\small
+\KwData{$\mathit{\RM}$,$\mathit{\WM}$,$K$, $\inits$}
+\KwResult{$\visited$ \hfill (the reachable states)}
+\vspace{1.5ex}$\visited \gets \{\inits\}$\\
+$\level  \gets \{\inits\}$\vspace{1.5ex}\\
+\For{$1 \leq i \leq K$} {
+    $\explored_i^r \gets \emptyset$\\
+    $\tmp_i^r \gets \emptyset$\\
+    $\transrelexpr_i^{r,w} \gets \emptyset$\hfill (\textcolor{orange}{empty} r/w projected transition relations)\\
+}\vspace{2ex}
+\While{$\textcolor{orange}\level \neq \emptyset$\vspace{1.5ex}} {
+    \For{$1 \leq i \leq K$} {
+        $\tmp_i^r \gets \rho_i(\textcolor{orange}\level) \setminus \explored_i^r$\hfill (new read inputs)\\
+        \For{$s^r \in \tmp_i^r  $} {
+            $\transrelexpr_i^{r,w} \gets \transrelexpr_i^{r,w} \cup \{(s^r,d^w) \mid
+d^w \in  \nextstate_i(s^r)\}$\\ 
+        }
+        $\explored_i^r \gets \explored_i^r \cup \tmp_i^r$ \\
+    }\vspace{2ex}
+    $\tmp \gets \emptyset$\\
+    \For{$1 \leq i \leq K$} {
+        $\tmp \gets \tmp \cup \textsc{Next}(\textcolor{orange}\level,
+\transrelexpr_i^{r,w}, \mathit{\RM}_i, \mathit{\WM}_i)$ \label{l:next}\\
+    }
+    $\textcolor{orange}\level \gets \tmp \setminus \visited$\\
+    $\visited \gets \visited \cup \tmp$\\
+}
+\caption{\textsc{reach-bfs-rw}}
+\label{alg:reach-bfs}
+\end{algorithm}
+
+Remember that GBgetTransitionsAll et al. utilize callbacks to return successor states.
+For briefness, in this text, we abstract from the callbacks and pretend the functions
+return a set of state vectors (short or long).
+we have the following overview of PINS functionality (see \texttt{pins/pins.h} for details):
+
+
+\autoref{alg:reach-bfs} implements symbolic reachability in PINS
+by learning the symbolic transition relation on-the-fly.
+It starts with one empty DD $\next^{r,w}_i$ to store (cache)
+the transition relation of action $i$.
+$\level$ is a DD representing the new vectors that need to be
+expanded in the main search loop (\textbf{while}).
+Before the actual expansion with the \textsc{Next} operation 
+on \autoref{l:next} according to Slide 45 of Lecture 5,
+the transition relation is learnt (see the first \textbf{for} loop).
+For each group the states in $\level$ are projected to the
+relevant read variables. If new inputs $s^r$ are found for these
+read values (by comparing with short vectors already in $\explored^r_i$),
+the $\nextstate$ function is called to compute all successors
+$d^w$ of $s^r$. The pairs \tuple{s^r,d^w} are then added to
+ $\next^{r,w}_i$.
+
+Note that PINS implements $\nextstate$ with \texttt{GBgetTransitionsShortR2W}.
+
+To facilitate the implementation of this algorithm, we use the
+VSET library (see \texttt{vset/vector\_set.h} for details).
+It is wrapper around multiple DD packages. It also handles some
+logic to reason over the variable domains:
+\texttt{vdom\_t} represents the domain of all variables (in long vectors)
+\texttt{vset\_t} represents a DD over state variable (short and long vectors),
+and \texttt{vrel\_t} represents DDs for transition relations
+over short or long vectors (contain unprimed and primed versions of the variables).
+The functions declared in \texttt{vset/vector\_set.h} should be
+self-explanatory. Note however that some overwrite one of the arguments
+with the result, e.g., executing \texttt{vset\_union(vset\_t dst,vset\_t src)}
+results in \texttt{dst} containing the union of the two original arguments.
+
+The \textsc{Next} operation is implemented with \texttt{vset\_next}.
+
+\begin{proof}[Task 1]
+Implement \autoref{alg:reach-bfs} in \texttt{alg/sym-bfs.c}.
+\end{proof}
+
+\begin{proof}[Task 2]~\\
+\vspace{-2em}
+\begin{itemize}
+	\item 
+Run your algorithm on several inputs from the \texttt{examples} dir
+(command: \texttt{./mc examples/x.pr --sym}).
+
+\item
+Change the BDD implementation to an MDD implementation by
+setting \texttt{VSET\_Sylvan} to \texttt{VSET\_LDDmc} in 
+the \texttt{init\_domain} function.
+Compare the results.
+
+\item
+Compare the runs with the results from the enumerative algorithms with
+tree table
+(implemented in \texttt{alg/enum-dfs.c} and executable with the command:
+\texttt{./mc examples/x.pr}, i.e., without \texttt{--sym}).
+
+\item
+Make a table comparing state count (should be equal across different algorithms and
+DD packages), runtimes and memory use for at least three different models
+and the three different approaches: tree compression, BDDs and MDDs.
+\end{itemize}
+\vspace{-2em}
+\end{proof}
+
+The relevant variables for (may) read and (may) write projections
+come from static analysis. Static analysis is an efficient
+method for overestimating which variables are involved in
+which statements.
+Compilers use static analysis for optimizing code
+(therefore, ``efficient'' really means quadratic, at most cubic, in the size of the input program, i.e., of negligible complexity compared to the model checking operation).
+To get an impression of static analysis,
+we will derive read and write variables for the Peterson model, by hand.
+
+It is trivially correct to mark all variables $j$ in the
+state vector as may-read and may-write
+for all actions $i$. However, this will not yield an efficient
+symbolic model checking procedure, as all DDs in \autoref{alg:reach-bfs}
+will include all variables.
+The following definitions allow us to derive better read / write
+dependencies:
+\begin{definition}[Read independence]
+
+	An action $i\in [1..K]$ is \emph{read independent} of slot $j \in [1..L]$
+	when for all $s \hookrightarrow_j t$, either:
+	\begin{itemize}[leftmargin=5mm]
+		\item $\forall a\in x_j \colon s[j := a] \hookrightarrow_j t[j := a]$
+			\hfill {(slot $j$ is irrelevant and copied)}
+		\item $\forall a\in x_j \colon s[j := a] \hookrightarrow_j t$
+			\hfill {(slot $j$ is irrelevant and overwritten with $t[j]$)}
+	\end{itemize}
+\end{definition}
+
+\begin{definition}[Write independence]
+	An action $i\in [1..K]$ is \emph{write independent} of slot $j \in [1..L]$
+	when for all $s \hookrightarrow_j t$, then
+	$s[j] = t[j]$ {(slot $j$ is copied)}.
+\end{definition}
+
+
+\begin{proof}[Task 3]
+Implement the functions 
+\texttt{write\_matrix} and \texttt{read\_matrix} 
+in\\ \texttt{peterson/peterson.c} more precisely,
+so that it can be used in symbolic model checking.
+
+See \texttt{label\_matrix} for an example of how to implement these
+functions. (The label matrix $L_{i,j}$
+says which slots $j$ of the state vector are
+read to evaluate a state label $i$.)
+\end{proof}
+
+
+\section{BDD Correctness}
+
+For the aims of this lab, Dafny provides two advantages
+over other theorem provers:
+\begin{itemize}
+	\item It allows us to write algorithms in a simple imperative 
+	language (other theorem provers offer only non-von Neumann languages,
+	i.e., functional languages, that are easier to reason about
+	mathematically, but more remote from the algorithms we study).
+	The verification approach of Dafny can be though of in terms of
+	the Curry-Howard correspondence (programs are proofs).
+	In practice this means that if we aim to prove that the output
+	of a program satisfies a certain property, then we
+	have to prove that every computational path through the
+	program satisfies it.
+	\item Dafny lets us reason using basic mathematical objects such as
+	natural numbers,
+	sets, sequences and maps. For example, \texttt{var S: set<nat>;} 
+	declares a set of natural numbers and \texttt{S + T} results in the 
+	union of these two sets.
+	\item Dafny offers a fully automated way of proving, so we do not
+		have to worry about which axioms have to be applied where. 
+		Instead, it translates the verification task into first-order logic
+		and delegates the proof to a SMT solver.\footnote{The downside being
+		that it is hard to debug failing proofs.}
+\end{itemize}
+
+A manual of Dafny can be found here:
+\url{https://github.com/Microsoft/dafny/raw/master/Docs/DafnyRef/out/DafnyRef.pdf}.
+
+Dafny can be executed online on Microsofts Rise4Fun website or 
+as a plugin of the free tool Visual Studio Code.
+Here is an example \url{https://rise4fun.com/Dafny/Mul}.
+
+A link to the exercise in Rise4Fun will be put on blackboard.
+
+
+\section{Short manual for Handling the Code}
+
+
+Extract the zip file from blackboard and make 
+sure \ltsmin is still installed.\footnote{In Lab 1,
+\ltsmin was installed in \texttt{\$HOME/ltsmin}.
+Make sure \texttt{\$HOME/ltsmin/bin} is still in your
+\texttt{\$PATH}, i.e., the commands \texttt{pins2lts-mc} and \texttt{spins} are executable.}
+The code can be compiled with the following commands:
+
+\texttt{cmake .}
+
+\texttt{make}
+
+
+To run the model checker call:
+
+\texttt{./mc <model>}
+
+Here, \texttt{<model>} can be a Promela model
+from the examples dir (which should be compiled
+automatically to a \texttt{.spins} library
+provided that \texttt{spins} is in your path).
+Alternatively, the Peterson from Lab 1 model can 
+still be used. It is compiled to \texttt{libpeterson.so}
+in the \texttt{peterson} subdir. It can thus be run with:
+
+\texttt{./mc peterson/libpeterson.so}
+
+
+
+
+
+
+\section{Hand in Results}
+
+Write a short report (as short as possible, but including the table asked in the first part of the lab) answering the above questions and zip it together with
+your source code.
+Hand in your results in the `Labs' section on Blackboard.
+
+
+
+\bibliographystyle{plain}
+\bibliography{lit}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

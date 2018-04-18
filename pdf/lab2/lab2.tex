@@ -1,0 +1,329 @@
+\documentclass[12pt]{article}
+
+\input{preamble}
+\input{macros}
+\input{local-macros}
+
+\title{Partial Order Reduction}
+
+\author{{Alfons Laarman, Pim Wijn}}
+
+
+\pagestyle{plain}
+
+\def\ltsmin{\textsc{LTSmin}\xspace}
+
+
+\begin{document}
+
+
+
+
+\maketitle
+
+\section{Introduction}
+
+The current lab assignment lets you implement a basic
+partial order reduction algorithm. 
+The next-state interface is again used for
+on-the-fly model checking. 
+This time the model checker \texttt{mc.cpp}
+is slightly extended to make use of a slightly more
+extended version of the next-state interface, called
+Partitioned Next-State Interface (PINS).
+
+Apart from a next-state function, PINS also exposes
+static information about the model.
+A read and write boolean matrix $R_{i,j}$/$W_{i,j}$
+provides an overestimation
+of which variables $j$ in the state vector are read / 
+written to by which action $i$ (or group in PINS terminology).
+Furthermore, a state label matrix $L_{i,j}$ contains information
+about which variables $j$ in the state vector are read
+when evaluating a state label $i$.
+Other matrices exposes the non-commutativity information
+(actions $\times$ actions), the action to guard relation 
+(action $\times$ state labels) and 
+necessary enabling information (labels $\times$ actions).
+We will use this information to implement POR.
+More details follow, but the full PINS interface is described in~\cite{ltsmin2}.
+
+
+Extract the zip file from blackboard and make 
+sure \ltsmin is still installed.\footnote{In Lab 1,
+\ltsmin was installed in \texttt{\$HOME/ltsmin}.
+Make sure \texttt{\$HOME/ltsmin/bin} is still in your
+\texttt{\$PATH}, i.e., the commands \texttt{pins2lts-mc} and \texttt{spins} are executable.}
+The code can be compiled with the following commands:
+
+\texttt{cmake .}
+
+\texttt{make}
+
+
+To run the model checker call:
+
+\texttt{./mc <model>}
+
+Here, \texttt{<model>} can be a Promela model
+from the examples dir (which should be compiled
+automatically to a \texttt{.spins} library
+provided that \texttt{spins} is in your path).
+Alternatively, the Peterson from Lab 1 model can 
+still be used. It is compiled to \texttt{libpeterson.so}
+in the \texttt{peterson} subdir. It can thus be run with:
+
+\texttt{./mc peterson/libpeterson.so}
+
+
+\section{Introduction to Callback Functions}
+
+To implement iterators, PINS uses callback functions.
+Passing these callbacks is based on function pointers.
+Function pointers are literally pointers to
+\emph{function implementations}.
+They can be used to parametrize the called function:
+\begin{verbatim}
+typedef int (*function_pointer_type)(int a, int b);
+int function_implementation(int a, int b) { return a * b; }
+int main(){
+    function_pointer_type fp = function_implementation;
+    assert (fp(4,99) == function_implementation(4,99));
+}
+\end{verbatim}
+PINS passes function pointers to implement iteration efficiently.
+In a simple world, the \texttt{GBgetTransitionsAll} function
+could return a set of successors to iterate on, as follows:
+\begin{verbatim}
+void search(stack_t *stack) {
+    ...
+        for (int *dst : GBgetTransitionsAll(model, src)) {
+            stack_push(stack, dst);
+        }
+    ...
+}
+\end{verbatim}
+To avoid creating this set storing all
+the vectors, instead we do the following:
+\begin{verbatim}
+static stack_t *stack;
+
+void callback(void *context, transition_info_t *ti, int *dst, int *cpy) {
+    stack_push(stack, dst);
+}
+void search() {
+    ...
+        GBgetTransitionsAll(model, src, callback));
+    ...
+}
+\end{verbatim}
+Notice that we can no longer use local variables in the callback
+and hence, we had to declare stack a static global variable.
+To avoid this, callbacks additionally take a pointer to a
+``context''. With some casting, we can now pass around the variables we need:
+\begin{verbatim}
+void callback(void *context, transition_info_t *ti, int *dst, int *cpy) {
+	stack_t *stack = (stack_t *) context;
+    stack_push(stack, dst);
+}
+void search(stack_t *stack) {
+    ...
+        GBgetTransitionsAll(model, src, callback, (void *) stack));
+    ...
+}
+\end{verbatim}
+
+
+
+\section{Partial Order Reduction}
+
+Partial order reduction (POR) will be implemented 
+in an extra layer in the next-state interface, which
+intercepts next-state calls to model, computes an
+ample set and only passes those actions through to 
+the callee (the state space search algorithm) that are in the ample set.
+
+\defmath\nes{nes}
+\begin{center}
+\newcommand\alert[1]{{\color{orange}#1}}
+\defmath\pins{\textsc{pins}}
+\begin{tikzpicture}[font=\scriptsize]
+\tikzstyle{every node}=[draw,shape=rectangle,node distance=1.8cm];
+\node (a0) [minimum  width=4.5cm] {NDFS/SCC emptiness check};
+%\node (a1) [above of=a0, minimum  width=4.5cm] {LTL crossproduct $M\otimes \mathcal B_\varphi$};
+
+{
+\node (a2) [above of=a0,minimum  width=4.5cm] {Partial order reduction};
+}
+
+\node (a3) [above of=a2,minimum  width=4.5cm] {Next-State Implementation of $M$};
+\node (spec) [above of=a3,draw=none,node distance=.8cm,minimum  width=4.5cm]
+{System $M$};
+%\node (prop2) [right of=spec,draw=none,node distance=4cm]{\phantom{Property $\varphi$}};
+%\node (prop) [left of=spec,draw=none,node distance=4cm]{Property $\varphi$};
+
+
+{
+%\draw[transform canvas={xshift=-.5ex},->,dashed] (a1) -- node[left,draw=none]{$getNS(s)$}(a3);
+%\draw[transform canvas={xshift=.5ex},->,dashed] (a3) -- node[right,draw=none]{$callback(t)$}(a1);
+}
+{
+%\draw[transform canvas={xshift=-.5ex},->,dashed] (a1) -- node[left,draw=none]{$getNS(s)$}(a2);
+\draw[transform canvas={xshift=.5ex},->,dashed] (a2) -- node[yshift=-.2cm,text width=1.5cm,right,draw=none]{$callback(t)$ \alert{(or not)}}(a0);
+\draw[transform canvas={xshift=-.5ex},->,dashed] (a2) -- node[left,draw=none]{$getNS(s)$}(a3);
+\draw[transform canvas={xshift=.5ex},->,dashed] (a3) -- node[right,draw=none]{$callback(t)$}(a2);
+}
+\draw[transform canvas={xshift=-.5ex},->,dashed] (a0) -- node[left,draw=none]{$getNS(s)$}(a2);
+%\draw[transform canvas={xshift=.5ex},->,dashed] (a1) -- node[right,draw=none]{$callback(t')$}(a0);\draw[->,thick] (spec) -- (a3);
+%\draw[->,thick] (prop) -- (a3);
+
+\tikzstyle{every node}=[node distance=1.1cm,scale=2];
+\node (b0) [right of=a0,draw=none] {};
+%\node (b1) [right of=a1,draw=none] {};
+%\node (bb1) [right of=b1,xshift=.1cm,draw=none] {};
+\node (b2) [right of=a2,draw=none] {};
+\node (b3) [right of=a3,draw=none] {};
+
+%\draw[->,thick] (prop) edge[bend right=25] (a1.west);
+
+\tikzstyle{every node}=[node distance=2cm]
+
+
+{
+\draw[->,dashed,thick] (b3) edge [bend left=20] node[text width=1.5cm,yshift=-.1cm,right]{$\bowtie, \nes$} (b2);
+}{
+%\draw[->,dashed,thick] (a1.east) edge [bend right=25] node[yshift=-.15cm,left]{$\underline{Vis}$} (a2.east);
+}
+
+{
+%\draw[->,dashed,thick] (b0) edge [bend right=60]
+%node[xshift=-.3cm,yshift=-.9cm,text centered,text width=2.5cm,right]
+%{\underline{$s\in \mathit{stack}$}
+%($s$~lies~on~a~cycle) } (b2);
+}
+
+%\draw[-,dashed,thick,color=red] (-1.5,4.8) -- node[xshift=-1.9cm,yshift=-0em]{\pins} (1.5,4.8);
+
+{
+\draw[-,dashed,thick,color=red] (-1.5,3) -- node[xshift=-1.9cm,yshift=-0em]{\pins} (1.5,3);
+}
+\draw[-,dashed,thick,color=red] (-1.5,1.2) -- node[xshift=-1.9cm,yshift=-0em]{\pins} (1.5,1.2);
+\end{tikzpicture}
+\end{center}
+
+
+The POR layer is implemented in \texttt{por/por.c}.
+It is activated by calling \texttt{./mc} with an
+additional \texttt{--por} argument.
+The initial implementation of \texttt{por.c}
+does nothing but forward the incoming next-state calls,
+i.e., to return all successors of the \texttt{src} state,
+so no reduction results from activating the layer.
+
+
+\begin{algorithm}[b]
+\SetKwBlock{Function}{function}{end function}
+\Function({$\mathit{stubborn}_{\mathit{closure}}(s)$}) {
+$\workset = \{{\alpha} \}$ \textbf{for some} ${\alpha} \in \en(s)$\\\label{l:nondet1}
+$\stubbornset = \emptyset$\\
+\While{$\workset \neq \emptyset$}{
+    $\workset = \workset \setminus \{\alpha\}$,
+    $\stubbornset = \stubbornset \cup \{\alpha\}$ \textbf{for some} $\alpha \in \workset$\\
+    \eIf{$\alpha \in \en(s)$}{
+        $\workset = \workset \cup \dna(\alpha) \setminus \stubbornset$\\\label{closure:en}
+    }
+    {
+        $\workset = \workset \cup \nes(g) \setminus  \stubbornset$ \textbf{for some}
+        guard $g \in G(\alpha)$ \textbf{s.t.}
+        $\neg g(s)$\\\label{l:nondet2}
+    }
+}
+\Return{$\stubbornset \cap \en(s)$}
+}
+\caption{The \concept{closure} algorithm for finding stubborn sets}
+\label{alg:stubborn-set}
+\end{algorithm}
+
+
+The task is to implement the stubborn set in order
+to find a sufficient subset of actions enabled from
+\texttt{src}, to reduce the state space while
+retaining all of its its deadlocks.
+The POR algorithm is also a search, but over the
+actions, enabled and disabled in the source state.
+The \texttt{por\_next\_all} function contains some hints about
+how this search over actions that can be implemented.
+
+\autoref{alg:stubborn-set} describes a
+ simple algorithm to compute a stubborn set \stubbornset for a state~$s$.
+The visited actions are recorded in the stubborn set \stubbornset and
+new actions are added to the queue \workset (\texttt{por->actions\_selected} and
+\texttt{por->queued} in the code).
+
+
+The algorithm further relies on actions $\alpha$ having a set of guards (state labels)
+that can be evaluated in the state. A guard $g\in G(\alpha)$ of $\alpha$ is
+disabled in $s$ when $\neg g(s)$ and enabled in $s$ when $g(s)$
+(\texttt{GBgetGuard()} in the code implements $G$ and 
+\texttt{por->guard\_status[g]} implements $g(s)$/$\neg g(s)$).
+
+The non-commuting actions for an actions $\alpha$ are
+denoted with $\not\bowtie\hspace{-1.5mm}(\alpha)$ (\texttt{por->ncommute} in the code).
+For enabled actions in the stubborn set \stubbornset, all non-commuting
+actions should be added (see Line 7).
+For a  disabled action $\alpha$ in the stubborn set,
+a complete necessary enabling set (\texttt{por->nes} in the code)
+should be added for at least one disabled guard of $\alpha$ (see Line 9).
+
+
+The \texttt{X.509} protocol in the \texttt{examples} dir has 9028 states and
+4 deadlocks. Does your reduction implementation retain all deadlocks?
+How many states does the reduced state space contain?
+How well do other models reduce?
+
+\texttt{./mc X.509.pr.spins --por}
+
+ 
+Improvements to this basic algorithm and also a more advanced algorithm, can be
+found in \cite{guardpor2}.
+
+\begin{proof}[Bonus assignment 1]
+	To use the reduction on your Peterson model, copy your version of
+	\texttt{peterson.c} in the peterson dir and extend 
+	\texttt{peterson.c} and \texttt{dlopen-impl.c} to pass
+	the required to information to the PINS interface:
+	\texttt{GBsetNextStateLong} (for evaluating state labels),
+	\texttt{GBsetStateLabelInfo} (for indicating which state slots are read by the guards),
+	\texttt{GBsetGuardsInfo} (for $G$, i.e., assigning guards to actions (groups)),
+	\texttt{GBsetGuardNESInfo} (for the NES matrix), and
+	\texttt{GBsetDoNotAccordInfo} (for the non-commute matrix).
+	The latter two can be estimated from the state slots read/written 
+	by actions and guards (see the included \texttt{peterson.c} for an example).
+\end{proof}
+
+\begin{proof}[Bonus assignment 2]
+Improve the performance and memory usage of the model checker further by using
+the tree compression data structure. An implementation of the structure 
+can be found in \texttt{util-mc/treedbs-ll.c}.
+\end{proof}
+
+
+
+\section{Hand in Results}
+
+Write a short report (as short as possible) answering the above questions and zip it together with
+your source code.
+Hand in your results in the `Labs' section on Blackboard.
+
+
+
+\bibliographystyle{plain}
+\bibliography{lit}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
