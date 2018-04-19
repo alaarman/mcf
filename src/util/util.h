@@ -13,8 +13,10 @@ extern "C" {
 
 #include <errno.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define CACHE_LINE 6
 #define CACHE_LINE_SIZE    64
@@ -76,6 +78,18 @@ static inline size_t
 INT_SIZE (size_t size)
 {
     return (size + 3) / 4;
+}
+
+static inline bool
+has_suffix(const char *str, const char *suffix)
+{
+    if (!str || !suffix)
+        return 0;
+    size_t lenstr = strlen(str);
+    size_t lensuffix = strlen(suffix);
+    if (lensuffix >  lenstr)
+        return 0;
+    return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
 #ifdef __cplusplus

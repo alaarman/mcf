@@ -6,6 +6,7 @@
  */
 #include <stdbool.h>
 
+#include <aux/options.h>
 #include <syntax/ltsmin-type-system.h>
 #include <syntax/ltsmin-standard.h>
 #include <pins/property-semantics.h>
@@ -46,11 +47,11 @@ void set_pins_semantics(model_t model, ltsmin_expr_t e, ltsmin_parse_env_t env, 
             const int N = lts_type_get_state_length(lts_type);
             if (e->idx < N) { // state variable
                 if (deps != NULL) bitvector_set(deps, e->idx);
-                if (PINS_POR) pins_add_state_variable_visible(model, e->idx);
+                if (SETTINGS.OPTIONS.POR) pins_add_state_variable_visible(model, e->idx);
             } else { // state label
                 if (sl_deps != NULL) bitvector_set(sl_deps, e->idx - N);
                 if (deps != NULL) dm_row_union(deps, GBgetStateLabelInfo(model), e->idx - N);
-                if (PINS_POR) pins_add_state_label_visible(model, e->idx - N);
+                if (SETTINGS.OPTIONS.POR) pins_add_state_label_visible(model, e->idx - N);
             }
             break;
         }
@@ -68,7 +69,7 @@ void set_pins_semantics(model_t model, ltsmin_expr_t e, ltsmin_parse_env_t env, 
             if (n > 0) {
                 for (int k = 0; k < n; k++) {
                     const int group = groups[k];
-                    if (PINS_POR) pins_add_group_visible(model, group);
+                    if (SETTINGS.OPTIONS.POR) pins_add_group_visible(model, group);
                     if (deps != NULL) dm_row_union(deps, GBgetDMInfoRead(model), group);
                 }
             } else {

@@ -10,6 +10,7 @@
 
 static const char      INV_OPT[] = "--inv=";
 static const char      SYM_OPT[] = "--sym";
+static const char      TR_OPT[] = "--tr";
 static const char      POR_OPT[] = "--por";
 static const char      LTL_OPT[] = "--ltl=";
 static const char      CTL_OPT[] = "--ctl=";
@@ -33,12 +34,13 @@ void
 parse_options(int argc, const char **argv)
 {
     // Parse command line options:
-    Print("%d %s %d.\n",  sizeof(INV_OPT), INV_OPT, strncmp("--inv=sdds", INV_OPT, sizeof(INV_OPT)-2) );
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], POR_OPT) == 0) {
             SETTINGS.OPTIONS.POR = true;
         } else if (strcmp(argv[i], SYM_OPT) == 0) {
             SETTINGS.OPTIONS.SYM = true;
+        } else if (strcmp(argv[i], TR_OPT) == 0) {
+            SETTINGS.OPTIONS.TR = true;
         } else if (strncmp(argv[i], INV_OPT, sizeof(INV_OPT)-1) == 0) {
             SETTINGS.OPTIONS.INVARIANT = &argv[i][sizeof(INV_OPT)-1];
         } else if (strncmp(argv[i], LTL_OPT, sizeof(LTL_OPT)-1) == 0) {

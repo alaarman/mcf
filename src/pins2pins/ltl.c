@@ -21,6 +21,7 @@
 //#include <syntax/ltsmin-standard.h>
 
 
+#include <aux/options.h>
 #include <dm/dm.h>
 #include <pins/pins.h>
 #include <syntax/ltsmin-standard.h>
@@ -36,7 +37,6 @@
 //#include <pins-lib/property-semantics.h>
 
 uint32_t                HOA_ACCEPTING_SET = 0;
-static char            *ltl_file = NULL;
 pins_buchi_type_t       PINS_BUCHI_TYPE = PINS_BUCHI_TYPE_BA;
 
 static const int        TEXTBOOK_INIT = (1UL << 30);
@@ -209,13 +209,12 @@ ltl_textbook_all (model_t self, int *src, TransitionCB cb, void *user_context)
  * which is what we want anyway, because ltsmin_ltl2ba uses strdup.
  */
 static ltsmin_buchi_t *
-init_buchi(model_t model, const char *ltl_file)
+init_buchi(model_t model)
 {
-    Print( "LTL layer: formula: %s", ltl_file);
-    ltsmin_parse_env_t ltl = ltl_parse_file (ltl_file, GBgetLTStype(model));
+    ltsmin_parse_env_t ltl = SETTINGS.LTL;
     struct LTL_info LTL_info = {0, 0};
     check_LTL(ltl->expr, ltl, &LTL_info);
-    if (LTL_info.has_X && PINS_POR) {
+    if (LTL_info.has_X && SETTINGS.OPTIONS.POR) {
         const char* ex = LTSminPrintExpr(ltl->expr, ltl);
         Abort("The neXt operator is not allowed in "
                 "combination with --por: %s", ex);
@@ -257,10 +256,8 @@ init_buchi(model_t model, const char *ltl_file)
  *
  */
 model_t
-GBaddLTL (model_t model)
+pins2pins_ltl (model_t model)
 {
-    if (ltl_file == NULL) return model;
-
     //     TODO: add PINS layer to layer communication
     //    if (LTL_info.has_X && PINS_POR) { Abort
 
@@ -271,7 +268,7 @@ GBaddLTL (model_t model)
                lts_type_get_state_label_name(ltstype, old_idx));
     }
 
-    ltsmin_buchi_t *ba = init_buchi(model, ltl_file);
+    ltsmin_buchi_t *ba = init_buchi(model);
 
     model_t         ltlmodel = GBcreateBase();
     ltl_context_t *ctx = RTmalloc(sizeof *ctx);

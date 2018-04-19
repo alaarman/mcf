@@ -31,6 +31,8 @@ add_executable(mc
                 aux/options.c aux/options.h
                 pins2pins/ltl.c pins2pins/ltl.h
                 pins2pins/por.c pins2pins/por.h
+                pins2pins/process.c pins2pins/process.h
+                pins2pins/tr.c pins2pins/tr.h
                 loader/dve-pins.c loader/dve-pins.h
                 loader/loader.c loader/loader.h
                 loader/etf-pins.c loader/etf-pins.h

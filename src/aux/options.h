@@ -6,8 +6,9 @@
 
 
 typedef struct options_s {
-    bool            POR;
-    bool            SYM;
+    bool            POR;            // partial order reduction
+    bool            TR;             // transaction reduction
+    bool            SYM;            // symbolic algorithm
     const char     *FNAME;
     const char     *INVARIANT;
     const char     *LTL;

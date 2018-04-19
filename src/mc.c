@@ -14,7 +14,9 @@
 #include "loader/loader.h"
 #include "pins/pins.h"
 #include "pins/pins-util.h"
+#include "pins2pins/ltl.h"
 #include "pins2pins/por.h"
+#include "pins2pins/tr.h"
 #include "util/runtime.h"
 #include "util/util.h"
 
@@ -36,6 +38,14 @@ int main(int argc, const char **argv) {
     if (SETTINGS.OPTIONS.POR) {
         Print("Activating Partial Order Reduction layer");
         model = pins2pins_por(model); // wrap model
+    }
+    if (SETTINGS.OPTIONS.TR) {
+        Print("Activating Transaction Reduction layer");
+        model = pins2pins_tr(model); // wrap model
+    }
+    if (SETTINGS.OPTIONS.LTL) {
+        Print("Activating LTL layer for property '%s'", SETTINGS.OPTIONS.LTL);
+        model = pins2pins_ltl(model); // wrap model
     }
 
     // Print model info:
