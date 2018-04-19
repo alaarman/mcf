@@ -61,8 +61,10 @@ input model in that language. To avoid dependencies on separate tools,
 the generated code for these inputs is provided in `examples/`
 (the `c` and `cpp` files). To compile them to libraries implementing PINS, execute:
 > cmake exmaples
+
 Now the examples can be verified with, e.g.:
 > src/mc X509.pr.dylib
+
 > src/mc leader_election.6.dve.dylib
 
 The directory `examples/models` contains the original models before code generation.
