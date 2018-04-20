@@ -33,7 +33,7 @@
 |*              Structures and shared variables                     *|
 \********************************************************************/
 
-extern GState **init, *gstates;
+extern GState **init_state, *gstates;
 extern struct rusage tr_debut, tr_fin;
 extern struct timeval t_diff;
 extern int tl_verbose, tl_stats, tl_simp_diff, tl_simp_fly, tl_simp_scc,
@@ -619,8 +619,8 @@ void mk_buchi()
   s->trans = emalloc_btrans(); /* sentinel */
   s->trans->nxt = s->trans;
   for(i = 0; i < init_size; i++) 
-    if(init[i])
-      for(t = init[i]->trans->nxt; t != init[i]->trans; t = t->nxt) {
+    if(init_state[i])
+      for(t = init_state[i]->trans->nxt; t != init_state[i]->trans; t = t->nxt) {
 	int fin = next_final(t->final, 0);
 	BState *to = find_bstate(&t->to, fin, s);
 	for(t1 = s->trans->nxt; t1 != s->trans;) {

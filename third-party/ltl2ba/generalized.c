@@ -41,7 +41,7 @@ extern int tl_verbose, tl_stats, tl_simp_diff, tl_simp_fly, tl_fjtofj,
   tl_simp_scc, *final_set, node_id;
 extern char **sym_table;
 
-GState *gstack, *gremoved, *gstates, **init;
+GState *gstack, *gremoved, *gstates, **init_state;
 GScc *scc_stack;
 int init_size = 0, gstate_id = 1, gstate_count = 0, gtrans_count = 0;
 int *fin, *final, rank, scc_id, scc_size, *bad_scc;
@@ -165,8 +165,8 @@ void retarget_all_gtrans()
   GTrans *t;
   int i;
   for (i = 0; i < init_size; i++)
-    if (init[i] && !init[i]->trans) /* init[i] has been removed */
-      init[i] = init[i]->prv;
+    if (init_state[i] && !init_state[i]->trans) /* init[i] has been removed */
+      init_state[i] = init_state[i]->prv;
   for (s = gstates->nxt; s != gstates; s = s->nxt)
     for (t = s->trans->nxt; t != s->trans; )
       if (!t->to->trans) { /* t->to has been removed */
@@ -302,8 +302,8 @@ void simplify_gscc() {
     s->incoming = 0; /* state color = white */
 
   for(i = 0; i < init_size; i++)
-    if(init[i] && init[i]->incoming == 0)
-      gdfs(init[i]);
+    if(init_state[i] && init_state[i]->incoming == 0)
+      gdfs(init_state[i]);
 
   scc_final = (int **)tl_emalloc(scc_id * sizeof(int *));
   for(i = 0; i < scc_id; i++)
@@ -556,8 +556,8 @@ void print_generalized() { /* prints intial states and calls 'reverse_print' */
   int i;
   fprintf(tl_out, "init :\n");
   for(i = 0; i < init_size; i++)
-    if(init[i])
-      fprintf(tl_out, "%i\n", init[i]->id);
+    if(init_state[i])
+      fprintf(tl_out, "%i\n", init_state[i]->id);
   reverse_print_generalized(gstates->nxt);
 }
 
@@ -596,10 +596,10 @@ void mk_generalized()
     init_size++;
   }
 
-  if(init_size) init = (GState **)tl_emalloc(init_size * sizeof(GState *));
+  if(init_size) init_state = (GState **)tl_emalloc(init_size * sizeof(GState *));
   init_size = 0;
   for(s = gstack->nxt; s != gstack; s = s->nxt)
-    init[init_size++] = s;
+    init_state[init_size++] = s;
 
   while(gstack->nxt != gstack) { /* solves all states in the stack until it is empty */
     s = gstack->nxt;
