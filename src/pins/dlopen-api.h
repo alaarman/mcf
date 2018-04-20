@@ -24,7 +24,7 @@ extern char pins_plugin_name[];
 /**
 \brief Type of initializer.
  */
-typedef void(*init_proc)(int argc,char* argv[]);
+typedef void (*init_proc)(int argc,char* argv[]);
 /**
  Optional initializer procedure;
  */

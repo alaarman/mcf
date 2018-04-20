@@ -26,7 +26,7 @@
 int main(int argc, const char **argv) {
 
     parse_options (argc, argv);
-    Print ("Using model in file '%s'", SETTINGS.OPTIONS.FNAME);
+    Print ("Loading next-state implementation from file '%s'", SETTINGS.OPTIONS.FNAME);
 
     // Load PINS model:
     model_t model = GBcreateBase();

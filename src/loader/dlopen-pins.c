@@ -18,12 +18,11 @@
 
 
 void DLloadModel(model_t model,const char*name){
-    void* dlHandle = RTdlopen(name);
-    char* pins_name = RTdlsym(name,dlHandle,"pins_plugin_name");
-    Print ("loading model %s",pins_name);
-    init_proc init = RTtrydlsym(dlHandle,"init");
+    void *dlHandle = RTdlopen(name);
+    char *pins_name = RTdlsym(name, dlHandle, "pins_plugin_name");
+    Print ("Input type: %s", pins_name);
+    init_proc init = RTtrydlsym(dlHandle, "init");
     if (init!=NULL){
-        Print ("Initializing %s plugin", pins_name);
         char *argv[2];
         argv[0]="mc";
         argv[1]=NULL;
