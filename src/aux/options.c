@@ -54,7 +54,7 @@ parse_options(int argc, const char **argv)
         } else if (access(argv[i], R_OK) == 0) {
             SETTINGS.OPTIONS.FNAME = argv[i];
         } else {
-            Abort ("Unknown option '%s'.", argv[i]);
+            Abort ("Unknown option or non-existant file: '%s'.", argv[i]);
         }
     }
     if (SETTINGS.OPTIONS.FNAME == NULL) Abort("Supply a file name.");
