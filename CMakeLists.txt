@@ -17,13 +17,13 @@ set(CMAKE_CPP_FLAGS_RELEASE "${CMAKE_CPP_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_LD_FLAGS_RELEASE  "${CMAKE_LD_FLAGS_RELEASE}")
 
-include_directories(src third-party)
-
-add_subdirectory(src)
+include_directories(third-party src)
 
 add_subdirectory(third-party/ltl2ba)
 add_subdirectory(third-party/lemon)
 add_subdirectory(third-party/sylvan)
+
+add_subdirectory(src)
 
 add_subdirectory(examples)
 add_custom_target(examples)
