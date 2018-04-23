@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 2.7)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-project(pins) # VERSION 1.4.0)
+project(mcf) # VERSION 1.4.0)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
-set(CMAKE_MACOSX_RPATH 1)
+set(CMAKE_MACOSX_RPATH on)
 
 set(CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG}     -fPIC -Wall -DHAVE_SYLVAN -DDEBUG=1 -g -O0")
 set(CMAKE_CPP_FLAGS_DEBUG   "${CMAKE_CPP_FLAGS_DEBUG}   -fPIC -Wall -DDEBUG=1 -g -O0")
@@ -17,11 +17,11 @@ set(CMAKE_CPP_FLAGS_RELEASE "${CMAKE_CPP_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC -Wall")
 set(CMAKE_LD_FLAGS_RELEASE  "${CMAKE_LD_FLAGS_RELEASE}")
 
-include_directories(third-party src)
-
 add_subdirectory(third-party/ltl2ba)
 add_subdirectory(third-party/lemon)
 add_subdirectory(third-party/sylvan)
+
+include_directories(third-party src)
 
 add_subdirectory(src)
 
