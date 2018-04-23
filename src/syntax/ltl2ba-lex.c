@@ -62,7 +62,8 @@ extern YYSTYPE  tl_yylval;
 char    yytext[2048];
 
 #define Token(y)        tl_yylval = tl_nn(y,ZN,ZN); append_uform(yytext); \
-    Debug ("LTL Lexer: passing token '%s' to LTL2BA", yytext); return y
+                return y
+//Debug ("LTL Lexer: passing token '%s' to LTL2BA", yytext);
 
 #define LTL_LPAR ((void*)0x01)
 #define LTL_RPAR ((void*)0x02)

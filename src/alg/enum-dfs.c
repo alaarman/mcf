@@ -111,6 +111,12 @@ void dfs(search_t *S) {
  * Load model & Setup the search
  */
 void alg_enum_dfs(model_t model) {
+
+    if (SETTINGS.CTL != NULL || SETTINGS.LTL != NULL ||
+        SETTINGS.CTLSTAR != NULL || SETTINGS.MU != NULL) {
+        Exit(1, "LTL / CTL / CTL* / model mu-calculus checking not yet implemented in explicit-state engine.");
+    }
+
     // setup search:
     size_t l = pins_get_state_variable_count(model);
     search_t S;

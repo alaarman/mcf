@@ -8,6 +8,11 @@
 #define LTL_LPAR ((void*)0x01)
 #define LTL_RPAR ((void*)0x02)
 
+
+#define OLD_DEBUG DEBUG
+#undef DEBUG
+#define DEBUG 0
+
 ltsmin_expr_t
 ltsmin_expr_lookup(ltsmin_expr_t e, char *text, ltsmin_expr_list_t **le_list)
 {
@@ -88,3 +93,7 @@ linearize_ltsmin_expr(ltsmin_expr_t e, ltsmin_lin_expr_t **le)
         add_lin_expr(LTL_RPAR, le);
     }
 }
+
+
+#undef DEBUG
+#define DEBUG OLD_DEBUG

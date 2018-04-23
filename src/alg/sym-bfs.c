@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#include "aux/options.h"
 #include "pins/pins.h"
 #include "sylvan/lace.h"
 #include "util/dfs-stack.h"
@@ -241,6 +242,12 @@ void search2(sym_search_t *sym, vset_t visited) {
  * Load model & Setup the search
  */
 void alg_sym_bfs(model_t model) {
+
+    if (SETTINGS.CTL != NULL || SETTINGS.LTL != NULL || SETTINGS.INVARIANT != NULL ||
+        SETTINGS.CTLSTAR != NULL || SETTINGS.MU != NULL) {
+        Exit(1, "Invariant / LTL / CTL / CTL* / model mu-calculus checking not yet implemented in symbolic engine.");
+    }
+
     lace_init(1, 0);
     lace_startup(0, NULL, NULL);
 
