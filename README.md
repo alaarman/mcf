@@ -23,7 +23,7 @@ model. Instead, the model checker simply tries all actions on all states
 to explore all interleavings. The next section provides an example.
 
 
-## PINS langugae module
+## PINS language module
 
 For example, if the state vector consists
 of the variables:
@@ -37,6 +37,7 @@ TODO
 
 Execute:
 >  cmake .
+
 >  make
 
 
@@ -60,7 +61,7 @@ but compiled to a PINS module, meaning that C/C++ code is generated for each
 input model in that language. To avoid dependencies on separate tools,
 the generated code for these inputs is provided in `examples/`
 (the `c` and `cpp` files). To compile them to libraries implementing PINS, execute:
-> cmake exmaples
+> cmake examples
 
 Now the examples can be verified with, e.g.:
 > src/mc X509.pr.dylib
@@ -81,6 +82,7 @@ TODO
 
 
 
+## References
 
 
 [1] Kant, G., Laarman, A., Meijer, J., van de Pol, J., Blom, S., & van Dijk, T.
