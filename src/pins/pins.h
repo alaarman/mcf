@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "dm/dm.h"
-#include "pins/lts-type.h"
+#include "syntax/lts-type.h"
 #include "util/chunk_support.h"
 #include "util/chunk_table_factory.h"
 #include "util/string-map.h"

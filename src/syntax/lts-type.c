@@ -1,12 +1,11 @@
-// -*- tab-width:4 ; indent-tabs-mode:nil -*-
+#include "syntax/lts-type.h"
 
 #include <string.h>
 
-#include <syntax/lts-type.h>
-#include <util/dynamic-array.h>
-#include <util/stringindex.h>
-#include <util/runtime.h>
-#include <util/util.h>
+#include "util/dynamic-array.h"
+#include "util/runtime.h"
+#include "util/stringindex.h"
+#include "util/util.h"
 
 struct lts_type_s {
 int state_length;
@@ -137,27 +136,27 @@ lts_type_t lts_type_permute(lts_type_t t0,int *pi){
     return t;
 }
 
-void lts_type_printf( lts_type_t t){
-	Print0("The state labels are:\n");
+void lts_type_printf(lts_type_t t){
+	Print("The state labels are:\n");
 	for(int i=0;i<t->state_label_count;i++){
-	    Print0("%4d: %s:%s\n",i,
+	    Print("%4d: %s:%s\n",i,
                    t->state_label_name[i],
                    SIget(t->type_db,t->state_label_type[i]));
 	}
-	Print0("The edge labels are:\n");
+	Print("The edge labels are:\n");
 	for(int i=0;i<t->edge_label_count;i++){
-	    Print0("%4d: %s:%s\n",i,
+	    Print("%4d: %s:%s\n",i,
                    t->edge_label_name[i],
                    SIget(t->type_db,t->edge_label_type[i]));
 	}
-	Print0("The registered types are:\n");
+	Print("The registered types are:\n");
  	int N=SIgetCount(t->type_db);
 	for(int i=0;i<N;i++){
-	    Print0("%4d: %s (%s)\n",i,SIget(t->type_db,i),data_format_string(t,i));
+	    Print("%4d: %s (%s)\n",i,SIget(t->type_db,i),data_format_string(t,i));
 	}
-	Print0("The state vector is:\n");
+	Print("The state vector is:\n");
     for(int i=0;i<t->state_length;i++){
-        Print0("%4d: %s:%s\n",i,
+        Print("%4d: %s:%s\n",i,
                    t->state_name[i],
                    SIget(t->type_db,t->state_type[i]));
     }
@@ -186,7 +185,7 @@ void lts_type_set_state_length(lts_type_t  t,int length){
     }
     // allow ltstype to grow
     if (old_length < length) t->state_length=length;
-    else Exit(1, "lts-type isn't allowed to shrink");
+    else Abort("lts-type isn't allowed to shrink");
 
     t->state_name=(char**)RTrealloc(t->state_name, length*sizeof(char*));
     t->state_type=(int*)RTrealloc(t->state_type, length*sizeof(int));

@@ -198,7 +198,7 @@ tl_lex(void)
             tl_yylval->sym = tl_lookup(yytext);
             append_uform(yytext);
             }
-            Debug ("LTL Lexer: passing token '%s' to LTL2BA", yytext);
+            //Debug ("LTL Lexer: passing token '%s' to LTL2BA", yytext);
             return PREDICATE;
         default:
             Abort("unhandled LTL_TOKEN: %s\n", LTL_NAME(e->token));

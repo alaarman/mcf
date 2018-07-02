@@ -1,5 +1,5 @@
 #include <pins/dlopen-api.h>
-#include <pins/lts-type.h>
+#include <syntax/lts-type.h>
 #include <syntax/ltsmin-standard.h>
 #include <pins/pins.h>
 //#include <pins/pins-util.h>
