@@ -8,6 +8,8 @@
 #include "syntax/ltsmin-tl.h"
 #include "util/util.h"
 
+static const char      DEBUG_OPT[] = "-v";
+
 static const char      INV_OPT[] = "--inv=";
 static const char      SYM_OPT[] = "--sym";
 static const char      TR_OPT[] = "--tr";
@@ -28,11 +30,15 @@ settings_t SETTINGS = {
         .CTLSTAR = NULL,
         .MU = NULL
     }
+
+    .DBG = 0,
+    .STOPPED = 0,
 };
 
 void
 parse_options(int argc, const char **argv)
 {
+
     // Parse command line options:
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], POR_OPT) == 0) {
@@ -41,6 +47,8 @@ parse_options(int argc, const char **argv)
             SETTINGS.OPTIONS.SYM = true;
         } else if (strcmp(argv[i], TR_OPT) == 0) {
             SETTINGS.OPTIONS.TR = true;
+        } else if (strcmp(argv[i], DEBUG_OPT) == 0) {
+            SETTINGS.DBG = 1;
         } else if (strncmp(argv[i], INV_OPT, sizeof(INV_OPT)-1) == 0) {
             SETTINGS.OPTIONS.INVARIANT = &argv[i][sizeof(INV_OPT)-1];
         } else if (strncmp(argv[i], LTL_OPT, sizeof(LTL_OPT)-1) == 0) {

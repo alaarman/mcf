@@ -6,6 +6,7 @@
  * (previously called 'greybox', hence the mix of GB* / pins_* functions)
  */
 
+#include <signal.h>
 #include <unistd.h>
 
 #include "alg/enum-dfs.h"
@@ -20,6 +21,18 @@
 #include "util/runtime.h"
 #include "util/util.h"
 
+
+static void
+exit_mcf (int sig)
+{
+    if ( SETTINGS.STOPPED == 0 ) {
+        SETTINGS.STOPPED = 1;
+        Print ("PREMATURE EXIT (caught signal: %d)", sig);
+    } else {
+        Abort ("UNGRACEFUL EXIT");
+    }
+}
+
 /**
  * Load model & Setup the search
  */
@@ -27,6 +40,9 @@ int main(int argc, const char **argv) {
 
     parse_options (argc, argv);
     Print ("Loading next-state implementation from file '%s'", SETTINGS.OPTIONS.FNAME);
+
+    SETTINGS.STOPPED = 0;
+    (void) signal (SIGINT, exit_mcf);
 
     // Load PINS model:
     model_t model = GBcreateBase();

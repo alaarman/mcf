@@ -1,6 +1,8 @@
 #ifndef OPTIONS_H_
 #define OPTIONS_H_
 
+#include <stdbool.h>
+
 #include <pins/pins.h>
 #include <syntax/ltsmin-syntax.h>
 
@@ -24,6 +26,9 @@ typedef struct settings_s {
     ltsmin_parse_env_t      CTL;
     ltsmin_parse_env_t      CTLSTAR;
     ltsmin_parse_env_t      MU;
+
+    int                     STOPPED;
+    int                     DBG;
 } settings_t;
 
 

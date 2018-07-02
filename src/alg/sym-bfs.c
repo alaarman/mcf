@@ -198,7 +198,7 @@ void search2(sym_search_t *sym, vset_t visited) {
     vset_copy(level, visited);
 
     int count = 0;
-    while(!vset_is_empty(level)){
+    while(!vset_is_empty(level) && !SETTINGS.STOPPED){
 
         for(int i = 0; i < K; i++){
             // 0. implement relation learning per group i by projecting

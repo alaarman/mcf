@@ -86,7 +86,7 @@ void check_invariant(search_t *S, int *src) {
  * Perform search
  */
 void dfs(search_t *S) {
-    while (dfs_stack_size(S->stack) > 0) {
+    while (dfs_stack_size(S->stack) > 0 && !SETTINGS.STOPPED) {
 
         // greedy search:
         while (dfs_stack_frame_size(S->stack) > 0) {
@@ -142,7 +142,7 @@ void alg_enum_dfs(model_t model) {
     Print("State space has %zu states, %zu transitions, and %zu deadlocks",
           S.states, S.trans,  S.deadlocks);
     stats_t *stats = tree_ll_stats (S.visited);
-    Assert (stats->elts == S.states, "Wrong state count in tree");
+    Assert (SETTINGS.STOPPED || stats->elts == S.states, "Wrong state count in tree");
     Print(" ");
     size_t tree_m = sizeof(int[2][stats->nodes]);
     size_t table_m = sizeof(int[l]) * S.states;
