@@ -16,6 +16,7 @@
 #include "pins/pins.h"
 #include "pins/pins-util.h"
 #include "pins2pins/ltl.h"
+#include "pins2pins/group.h"
 #include "pins2pins/por.h"
 #include "pins2pins/tr.h"
 #include "util/runtime.h"
@@ -51,6 +52,10 @@ int main(int argc, const char **argv) {
 
     process_options (model);
 
+    if (SETTINGS.OPTIONS.REGROUP) {
+        Print("Activating regrouping layer for ordering specification '%s'", SETTINGS.OPTIONS.REGROUP);
+        model = pins2pins_regroup(model); // wrap model
+    }
     if (SETTINGS.OPTIONS.POR) {
         Print("Activating Partial Order Reduction layer");
         model = pins2pins_por(model); // wrap model

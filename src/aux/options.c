@@ -10,6 +10,7 @@
 
 static const char      DEBUG_OPT[] = "-v";
 
+static const char      REGROUP_OPT[] = "--regroup=";
 static const char      INV_OPT[] = "--inv=";
 static const char      SYM_OPT[] = "--sym";
 static const char      TR_OPT[] = "--tr";
@@ -28,8 +29,9 @@ settings_t SETTINGS = {
         .LTL = NULL,
         .CTL = NULL,
         .CTLSTAR = NULL,
-        .MU = NULL
-    }
+        .MU = NULL,
+        .REGROUP = NULL,
+    },
 
     .DBG = 0,
     .STOPPED = 0,
@@ -51,6 +53,8 @@ parse_options(int argc, const char **argv)
             SETTINGS.DBG = 1;
         } else if (strncmp(argv[i], INV_OPT, sizeof(INV_OPT)-1) == 0) {
             SETTINGS.OPTIONS.INVARIANT = &argv[i][sizeof(INV_OPT)-1];
+        } else if (strncmp(argv[i], REGROUP_OPT, sizeof(REGROUP_OPT)-1) == 0) {
+            SETTINGS.OPTIONS.REGROUP = &argv[i][sizeof(REGROUP_OPT)-1];
         } else if (strncmp(argv[i], LTL_OPT, sizeof(LTL_OPT)-1) == 0) {
             SETTINGS.OPTIONS.LTL = &argv[i][sizeof(LTL_OPT)-1];
         } else if (strncmp(argv[i], CTL_OPT, sizeof(CTL_OPT)-1) == 0) {

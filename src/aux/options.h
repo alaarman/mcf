@@ -17,6 +17,7 @@ typedef struct options_s {
     const char     *CTL;
     const char     *CTLSTAR;
     const char     *MU;
+    const char     *REGROUP;
 } options_t;
 
 typedef struct settings_s {
