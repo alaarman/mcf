@@ -62,7 +62,8 @@ add_library(sylvan STATIC ${SOURCES})
 find_package(GMP REQUIRED)
 
 target_link_libraries(sylvan m pthread ${GMP_LIBRARIES})
-
+target_include_directories(sylvan PUBLIC ${GMP_INCLUDE_DIR})
+  
 if(UNIX AND NOT APPLE)
     target_link_libraries(sylvan rt)
 endif()
