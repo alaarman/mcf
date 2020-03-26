@@ -1132,7 +1132,7 @@ void ltsmin_initialize_sylvan(); // defined in vset_sylvan.c
 vdom_t
 vdom_create_lddmc(int n)
 {
-    Print("Creating a multi-core ListDD domain.");
+    Print("Creating a Sylvan MDD domain.");
 
     ltsmin_initialize_sylvan();
     sylvan_init_ldd();

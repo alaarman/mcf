@@ -1401,7 +1401,7 @@ ltsmin_initialize_sylvan()
 static vdom_t
 dom_create(int vectorsize, int *_statebits, int actionbits)
 {
-    Print("Creating a Sylvan domain.");
+    Print("Creating a Sylvan BDD domain.");
 
     ltsmin_initialize_sylvan();
     sylvan_init_mtbdd();
