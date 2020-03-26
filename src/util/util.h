@@ -66,9 +66,9 @@ extern "C" {
 #define Assert(e,...) \
     do { if (DEBUG) {\
         if (expect_false(!(e))) {\
-        char buf[4096];\
+        char buf[8192];\
         if (#__VA_ARGS__[0])\
-            snprintf(buf, 4096, ": " __VA_ARGS__);\
+            snprintf(buf, 8192, ": " __VA_ARGS__);\
         else\
             buf[0] = '\0';\
         Exit(EXIT_FAILURE, "assertion \"%s\" failed%s", #e, buf);\

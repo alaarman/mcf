@@ -8,7 +8,7 @@
 #include <util/list.h>
 
 
-typedef struct __attribute__((packed)) process_s {
+typedef struct process_s {
     char               *name;
     int                 id;
     int                 pc_slot;
