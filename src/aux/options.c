@@ -13,6 +13,7 @@ static const char      DEBUG_OPT[] = "-v";
 static const char      REGROUP_OPT[] = "--regroup=";
 static const char      INV_OPT[] = "--inv=";
 static const char      SYM_OPT[] = "--sym";
+static const char      DD_OPT[] = "--dd=";
 static const char      TR_OPT[] = "--tr";
 static const char      POR_OPT[] = "--por";
 static const char      LTL_OPT[] = "--ltl=";
@@ -24,6 +25,7 @@ settings_t SETTINGS = {
     .OPTIONS = {
         .POR = false,
         .SYM = false,
+        .BDD = VSET_IMPL_AUTOSELECT,
         .FNAME = NULL,
         .INVARIANT = NULL,
         .LTL = NULL,
@@ -47,10 +49,19 @@ parse_options(int argc, const char **argv)
             SETTINGS.OPTIONS.POR = true;
         } else if (strcmp(argv[i], SYM_OPT) == 0) {
             SETTINGS.OPTIONS.SYM = true;
+            SETTINGS.OPTIONS.BDD = VSET_Sylvan;
         } else if (strcmp(argv[i], TR_OPT) == 0) {
             SETTINGS.OPTIONS.TR = true;
         } else if (strcmp(argv[i], DEBUG_OPT) == 0) {
             SETTINGS.DBG = 1;
+        } else if (strncmp(argv[i], DD_OPT, sizeof(DD_OPT)-1) == 0) {
+            const char ch = argv[i][sizeof(DD_OPT)-1];
+            switch (ch) {
+            case 'n': SETTINGS.OPTIONS.BDD = VSET_IMPL_AUTOSELECT; break;
+            case 'm': SETTINGS.OPTIONS.BDD = VSET_LDDmc; break;
+            case 'b': SETTINGS.OPTIONS.BDD = VSET_Sylvan; break;
+            default: Abort("Unknown DD type '%c'. Use 'm' for MDD, 'b' for BDD, or 'n' for none.", ch);
+            }
         } else if (strncmp(argv[i], INV_OPT, sizeof(INV_OPT)-1) == 0) {
             SETTINGS.OPTIONS.INVARIANT = &argv[i][sizeof(INV_OPT)-1];
         } else if (strncmp(argv[i], REGROUP_OPT, sizeof(REGROUP_OPT)-1) == 0) {

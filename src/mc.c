@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "alg/enum-dfs.h"
+#include "alg/enum-bdd.h"
 #include "alg/sym-bfs.h"
 #include "aux/options.h"
 #include "loader/loader.h"
@@ -88,6 +89,10 @@ int main(int argc, const char **argv) {
     if (SETTINGS.OPTIONS.SYM) {
         alg_sym_bfs (model);            // Symbolic reachability
     } else {
-        alg_enum_dfs (model);           // Enumerative reachability
+        if (SETTINGS.OPTIONS.BDD == VSET_IMPL_AUTOSELECT) {
+            alg_enum_dfs (model);           // Enumerative reachability
+        } else {
+            alg_enum_bdd (model);           // Enumerative reachability with BDDs
+        }
     }
 }

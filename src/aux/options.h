@@ -5,12 +5,14 @@
 
 #include <pins/pins.h>
 #include <syntax/ltsmin-syntax.h>
+#include "vset/vector_set.h"
 
 
 typedef struct options_s {
     bool            POR;            // partial order reduction
     bool            TR;             // transaction reduction
-    bool            SYM;            // symbolic algorithm
+    int             SYM;            // (semi)-symbolic algorithm
+    vset_implementation_t  BDD;            // use BDDs for visited set
     const char     *FNAME;
     const char     *INVARIANT;
     const char     *LTL;

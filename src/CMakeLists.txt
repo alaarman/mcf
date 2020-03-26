@@ -47,7 +47,9 @@ include_directories(. ${LIBXML2_INCLUDE_DIR})
 
 add_executable(mc
                 mc.c
+                alg/aux.c alg/aux.h
                 alg/enum-dfs.c alg/enum-dfs.h
+                alg/enum-bdd.c alg/enum-bdd.h
                 alg/sym-bfs.c alg/sym-bfs.h
                 aux/options.c aux/options.h
                 pins2pins/group.c pins2pins/group.h
