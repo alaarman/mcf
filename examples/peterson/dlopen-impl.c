@@ -1,8 +1,8 @@
-#include <pins/dlopen-api.h>
-#include <syntax/lts-type.h>
-#include <syntax/ltsmin-standard.h>
-#include <pins/pins.h>
-//#include <pins/pins-util.h>
+//#include <pins/dlopen-api.h>
+//#include <syntax/lts-type.h>
+//#include <syntax/ltsmin-standard.h>
+#include <ltsmin/pins.h>
+#include <ltsmin/pins-util.h>
 
 #include <peterson/peterson.h>
 
@@ -59,7 +59,7 @@ void pins_model_init(model_t m) {
 
     // add a "bool" type for state labels
     int bool_type = lts_type_add_type (ltstype, "bool", NULL);
-    lts_type_set_format (ltstype, bool_type, LTStypeEnum);//LTStypeBool);
+    lts_type_set_format (ltstype, bool_type, LTStypeBool);
 
     // set state name & type
     for (int i = 0; i < state_int_length(); ++i) {
