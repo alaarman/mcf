@@ -77,6 +77,15 @@ parse_options(int argc, const char **argv)
         } else if (access(argv[i], R_OK) == 0) {
             SETTINGS.OPTIONS.FNAME = argv[i];
         } else {
+            Print("Use %s with the following options:", argv[0]);
+            Print(" ");
+            Print("\t--por\tEnable POR layer (for enumerative model checking only)");
+            Print("\t--sym\tEnable (semi-)symbolic model checking (learning transition relations)");
+            Print("\t--dd=<x>\tUse binary (<x> = b) or multi-valued(<x> = m) decisions diagrams (for enumerative and semi-symbolic)");
+            Print("\t--inv=<i>\tCheck for the ");
+            Print(" ");
+            Print(" ");
+            Print(" ");
             Abort ("Unknown option or non-existant file: '%s'.", argv[i]);
         }
     }
