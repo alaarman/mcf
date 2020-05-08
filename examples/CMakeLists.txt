@@ -56,6 +56,7 @@ foreach( sourcefile ${DVE_MODELS} )
     target_compile_options(${lname} PRIVATE "-Wno-parentheses")
     
     add_dependencies(dve_examples ${lname})
+
 endforeach( sourcefile ${DVE_MODELS} )
 
 add_subdirectory(peterson)

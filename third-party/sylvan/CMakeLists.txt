@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 2.7)
 set(PROJECT_DESCRIPTION "Sylvan, a parallel decision diagram library")
 set(PROJECT_URL "https://github.com/trolando/sylvan")
 
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
+
 enable_language(C CXX)
 
 set(CMAKE_C_STANDARD 11)

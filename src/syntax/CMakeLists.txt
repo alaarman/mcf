@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.7)
 
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
+
 set(LEMON_EXECUTABLE "${PROJECT_SOURCE_DIR}/third-party/lemon/lemon")
 set(LEMON_TEMPLATE "${PROJECT_SOURCE_DIR}/third-party/lemon/lempar.c")
 # Flex and lemon
