@@ -229,7 +229,7 @@ table_create_sized (int length, int size, hash64_f hash64, int satellite_bits)
 {
     table_ll_t *           dbs = RTalign (CACHE_LINE_SIZE, sizeof (table_ll_t));
     dbs->length = length;
-    dbs->hash64 = hash64;
+    dbs->hash64 = hash64 ? hash64 : (hash64_f)MurmurHash64;
     dbs->full = 0;
     Assert (satellite_bits < 8, "To many satellite bits for good DBS performance");
     dbs->sat_bits = satellite_bits;
